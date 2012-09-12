@@ -211,6 +211,13 @@ public class XfoObj {
 			return this.lastError.getErrorMessage();
 	}
     
+    public int getExitLevel () throws XfoException {
+        String opt = "-extlevel";
+        if (this.args.containsKey(opt))
+            return Integer.parseInt(this.args.get(opt));
+        return 2;  // default exit level
+    }
+
 	public void releaseObject () {
 		this.clear();
 	}
