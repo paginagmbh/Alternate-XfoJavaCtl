@@ -557,6 +557,15 @@ public class XfoObj {
         }
     }
 
+    public void setPdfTag (boolean newVal) {
+        String opt = "-tpdf";
+        if (newVal) {
+            this.args.put(opt, null);
+        } else {
+            this.args.remove(opt);
+        }
+    }
+
     public void setPdfVersion (int newVal) {
         String opt = "-pdfver";
         String version = null;
