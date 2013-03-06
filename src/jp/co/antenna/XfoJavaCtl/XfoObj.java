@@ -45,7 +45,7 @@ public class XfoObj {
     public static final int S_PDF_VERSION_X_2_2003 = 105;
     public static final int S_PDF_VERSION_X_3_2002 = 103;
     public static final int S_PDF_VERSION_X_3_2003 = 106;
-    
+	
     // Attributes
     private String executable;
     private Runtime r;
@@ -71,68 +71,77 @@ public class XfoObj {
 			throw new XfoException(4, 0, "Could not determine OS");
 		}
 		String axf_home;
+		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
-		try {
-			axf_home = System.getenv("AHF60_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF60_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF53_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF53_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF52_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF52_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF51_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF51_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF50_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF50_HOME");
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF43_64_HOME");
-				axf_ver = 0;
+		if (axf_home == null) {
+			try {
+				axf_home = System.getenv("AHF60_64_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF60_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF53_64_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF53_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF52_64_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF52_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF51_64_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF51_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF50_64_HOME");
+				if ((axf_home == null) || axf_home.equals(""))
+					axf_home = System.getenv("AHF50_HOME");
+				if ((axf_home == null) || axf_home.equals("")) {
+					axf_home = System.getenv("AXF43_64_HOME");
+					axf_ver = 0;
+				}
+				if ((axf_home == null) || axf_home.equals("")) {
+					axf_home = System.getenv("AXF43_HOME");
+					axf_ver = 0;
+				}
+				if ((axf_home == null) || axf_home.equals("")) {
+					axf_home = System.getenv("AXF42_HOME");
+					axf_ver = 0;
+				}
+				if ((axf_home == null) || axf_home.equals("")) {
+					axf_home = System.getenv("AXF41_HOME");
+					axf_ver = 0;
+				}
+				if ((axf_home == null) || axf_home.equals("")) {
+					axf_home = System.getenv("AXF4_HOME");
+					axf_ver = 0;
+				}
+				if ((axf_home == null) || axf_home.equals(""))
+					throw new Exception();
+			} catch (Exception e) {
+				throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF43_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF42_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF41_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF4_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals(""))
-				throw new Exception();
-		} catch (Exception e) {
-			throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 		}
 		String separator = System.getProperty("file.separator");
         this.executable = axf_home + separator;
-		if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
-			if (axf_ver == 0)
-				this.executable += "bin" + separator + "XSLCmd";
+		if (System.getProperty("axf.bin") == null) {
+			if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
+				if (axf_ver == 0)
+					this.executable += "bin" + separator + "XSLCmd";
+				else
+					this.executable += "bin" + separator + "AHFCmd";
+			}
+			else if (os.contains("Windows")) {
+				if (axf_ver == 0)
+					this.executable += "XSLCmd.exe";
+				else
+					this.executable += "AHFCmd.exe";
+			}
 			else
-				this.executable += "bin" + separator + "AHFCmd";
+				throw new XfoException(4, 2, "Unsupported OS: " + os);
 		}
-		else if (os.contains("Windows")) {
-			if (axf_ver == 0)
-				this.executable += "XSLCmd.exe";
-			else
-				this.executable += "AHFCmd.exe";
+		else {
+			this.executable += System.getProperty("axf.bin");
+			System.out.println("moof moof formatter executable: "+this.executable);
 		}
-		else
-			throw new XfoException(4, 2, "Unsupported OS: " + os);
         // setup attributes
         this.clear();
     }
@@ -245,7 +254,8 @@ public class XfoObj {
 		cmdArray.add("@STDOUT");
 		cmdArray.add("-p");
 		cmdArray.add(outDevice);
-
+		System.out.println("moof moof formatter cli call: "+ cmdArray.toString());
+		
 		Process process;
 		ErrorParser errorParser = null;
 		int exitCode = -1;
@@ -271,7 +281,7 @@ public class XfoObj {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
 			} else {
-				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode);
+				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode +"\n moof moof formatter cli call: " + cmdArray.toString());
 			}
 		}
     }
