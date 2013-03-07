@@ -179,6 +179,7 @@ public class XfoObj {
         Process process;
         ErrorParser errorParser = null;
         int exitCode = -1;
+        System.out.println("moof moof formatter cli call @execute(src,dst,outDevice): "+ cmdArray.toString());
         try {
 			String[] s = new String[0];
             process = this.r.exec(cmdArray.toArray(s));
@@ -254,7 +255,7 @@ public class XfoObj {
 		cmdArray.add("@STDOUT");
 		cmdArray.add("-p");
 		cmdArray.add(outDevice);
-		System.out.println("moof moof formatter cli call: "+ cmdArray.toString());
+		System.out.println("moof moof formatter cli call @render(src,dst,outDevice): "+ cmdArray.toString());
 		
 		Process process;
 		ErrorParser errorParser = null;
@@ -281,7 +282,7 @@ public class XfoObj {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
 			} else {
-				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode +"\n moof moof formatter cli call: " + cmdArray.toString());
+				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + " render 2");
 			}
 		}
     }
@@ -309,7 +310,7 @@ public class XfoObj {
 		} catch (XfoException xfoe) {
 			throw xfoe;
 		} catch (Exception e) {
-			throw new XfoException(4, 0, "XSLT Transformation failed: " + e.toString());
+			throw new XfoException(4, 0, "XSLT Transformation failed: " + e.toString() + " render 2");
 		}
 	}
     
@@ -730,9 +731,11 @@ class ErrorParser extends Thread {
             // stuff
             BufferedReader reader = new BufferedReader(new InputStreamReader(this.ErrorStream));
             String line = reader.readLine();
+			System.err.println(line);
             while (line != null) {
                 if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                     if (line.contains("Error Level")) {
+						System.err.println(line);
                         try {
                             int ErrorLevel = Integer.parseInt(line.substring(line.length() - 1, line.length()));
                             line = reader.readLine();
