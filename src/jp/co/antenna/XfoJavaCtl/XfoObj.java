@@ -22,6 +22,17 @@ public class XfoObj {
     public static final int EST_NONE = 0;
     public static final int EST_STDOUT = 1;
     public static final int EST_STDERR = 2;
+	private static final String[] AH_HOME_ENV = {
+        "AHF61_64_HOME", "AHF61_HOME",
+		"AHF60_64_HOME", "AHF60_HOME",
+		"AHF53_64_HOME", "AHF53_HOME",
+		"AHF52_64_HOME", "AHF52_HOME",
+		"AHF51_64_HOME", "AHF51_HOME",
+		"AHF50_64_HOME", "AHF50_HOME",
+		"AXF43_64_HOME", "AXF43_HOME",
+		"AXF42_HOME",
+		"AXF41_HOME",
+		"AXF4_HOME"};
     
     public static final int S_PDF_EMBALLFONT_PART = 0;
     public static final int S_PDF_EMBALLFONT_ALL = 1;
@@ -70,47 +81,15 @@ public class XfoObj {
 		} catch (Exception e) {
 			throw new XfoException(4, 0, "Could not determine OS");
 		}
-		String axf_home;
+		String axf_home = null;
 		int axf_ver = 1;
 		try {
-			axf_home = System.getenv("AHF60_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF60_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF53_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF53_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF52_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF52_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF51_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF51_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF50_64_HOME");
-			if ((axf_home == null) || axf_home.equals(""))
-				axf_home = System.getenv("AHF50_HOME");
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF43_64_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF43_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF42_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF41_HOME");
-				axf_ver = 0;
-			}
-			if ((axf_home == null) || axf_home.equals("")) {
-				axf_home = System.getenv("AXF4_HOME");
-				axf_ver = 0;
+			Map<String, String> env = System.getenv();
+			for (String key: AH_HOME_ENV) {
+				if (env.containsKey(key)) {
+					axf_home = env.get(key);
+					break;
+				}
 			}
 			if ((axf_home == null) || axf_home.equals(""))
 				throw new Exception();
