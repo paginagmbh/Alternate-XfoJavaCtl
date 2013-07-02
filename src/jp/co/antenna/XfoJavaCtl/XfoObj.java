@@ -33,6 +33,17 @@ public class XfoObj {
 		"AXF42_HOME",
 		"AXF41_HOME",
 		"AXF4_HOME"};
+
+	private static final HashMap<String, Integer> AH_VER_MAP;
+	static {
+		Integer zero = new Integer(0);
+		AH_VER_MAP = new HashMap<String, Integer>();
+		AH_VER_MAP.put("AXF43_64_HOME", zero);
+		AH_VER_MAP.put("AXF43_HOME", zero);
+		AH_VER_MAP.put("AXF42_HOME", zero);
+		AH_VER_MAP.put("AXF41_HOME", zero);
+		AH_VER_MAP.put("AXF4_HOME", zero);
+	}
     
     public static final int S_PDF_EMBALLFONT_PART = 0;
     public static final int S_PDF_EMBALLFONT_ALL = 1;
@@ -84,15 +95,22 @@ public class XfoObj {
 		String axf_home;
 		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
-		if (axf_home == null) {
+		if ((axf_home == null) || axf_home.equals("")) {
 			try {
 				Map<String, String> env = System.getenv();
 				for (String key: AH_HOME_ENV) {
 					if (env.containsKey(key)) {
 						axf_home = env.get(key);
+						if (AH_VER_MAP.containsKey(key)) {
+							axf_ver = AH_VER_MAP.get(key).intValue();
+						}
 						break;
 					}
 				}
+				if ((axf_home == null) || axf_home.equals(""))
+					throw new Exception();
+			} catch (Exception e) {
+				throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 			}
 		}
 		String separator = System.getProperty("file.separator");
