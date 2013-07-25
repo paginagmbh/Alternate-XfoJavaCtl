@@ -133,7 +133,6 @@ public class XfoObj {
 		}
 		else {
 			this.executable += System.getProperty("axf.bin");
-			System.out.println("moof moof formatter executable: "+this.executable);
 		}
         // setup attributes
         this.clear();
@@ -172,7 +171,6 @@ public class XfoObj {
         Process process;
         ErrorParser errorParser = null;
         int exitCode = -1;
-        System.out.println("moof moof formatter cli call @execute(src,dst,outDevice): "+ cmdArray.toString());
         try {
 			String[] s = new String[0];
             process = this.r.exec(cmdArray.toArray(s));
@@ -255,7 +253,6 @@ public class XfoObj {
 		cmdArray.add("@STDOUT");
 		cmdArray.add("-p");
 		cmdArray.add(outDevice);
-		System.out.println("moof moof formatter cli call @render(src,dst,outDevice): "+ cmdArray.toString());
 		
 		Process process;
 		ErrorParser errorParser = null;
