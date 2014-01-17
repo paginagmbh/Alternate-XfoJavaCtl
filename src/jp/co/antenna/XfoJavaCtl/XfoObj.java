@@ -14,7 +14,7 @@ import javax.xml.transform.stream.StreamResult;
 
 /**
  * XfoObj Class is the object class of XSL Formatter
- * 
+ *
  * @author Test User
  */
 public class XfoObj {
