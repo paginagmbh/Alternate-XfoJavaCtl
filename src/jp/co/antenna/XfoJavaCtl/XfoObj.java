@@ -223,7 +223,7 @@ public class XfoObj {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
             } else {
-                throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode);
+                throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + " last message: " + errorParser.LastErrorMessage);
             }
         }
     }
