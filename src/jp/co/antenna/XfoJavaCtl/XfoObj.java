@@ -22,7 +22,7 @@ public class XfoObj {
     public static final int EST_NONE = 0;
     public static final int EST_STDOUT = 1;
     public static final int EST_STDERR = 2;
-	private static final String[] AH_HOME_ENV = {
+    private static final String[] AH_HOME_ENV = {
         "AHF61_64_HOME", "AHF61_HOME",
 		"AHF60_64_HOME", "AHF60_HOME",
 		"AHF53_64_HOME", "AHF53_HOME",
@@ -114,7 +114,7 @@ public class XfoObj {
 			}
 		}
 		String separator = System.getProperty("file.separator");
-        this.executable = axf_home + separator;
+		this.executable = axf_home + separator;
 		if (System.getProperty("axf.bin") == null) {
 			if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
 				if (axf_ver == 0)
@@ -146,8 +146,8 @@ public class XfoObj {
         this.r = Runtime.getRuntime();
         this.args = new LinkedHashMap<String, String>();
         this.messageListener = null;
-		this.userCSS = new ArrayList<String>();
-		this.lastError = null;
+	this.userCSS = new ArrayList<String>();
+	this.lastError = null;
     }
     
     /**
@@ -173,18 +173,48 @@ public class XfoObj {
 	StreamFlusher outputFlush = null;
         int exitCode = -1;
         try {
-			String[] s = new String[0];
-			process = this.r.exec(cmdArray.toArray(s));
-			try {
-				InputStream StdErr = process.getErrorStream();
-				InputStream StdOut = process.getInputStream();
-				errorParser = new ErrorParser(StdErr, this.messageListener);
-				errorParser.start();
-				outputFlush = new StreamFlusher(StdOut);
-				outputFlush.start();
-			} catch (Exception e) {}
-			exitCode = process.waitFor();
-        } catch (Exception e) {}
+	    String[] s = new String[0];
+	    try {
+		process = this.r.exec(cmdArray.toArray(s));
+	    } catch (IOException ioex) {
+		System.err.println("couldn't invoke axfo: " + ioex.getMessage());
+		return;
+	    }
+	    try {
+		InputStream StdErr = process.getErrorStream();
+		InputStream StdOut = process.getInputStream();
+		errorParser = new ErrorParser(StdErr, this.messageListener);
+		errorParser.start();
+		outputFlush = new StreamFlusher(StdOut);
+		outputFlush.start();
+	    } catch (Exception e) {
+		System.err.println("Exception getting streams: " + e.getMessage());
+	    }
+	    try {
+		exitCode = process.waitFor();
+	    } catch (InterruptedException e) {
+		System.err.println("InterruptedException waiting for axfo to finish: " + e.getMessage());
+	    }
+        } catch (Exception e) {
+	    System.err.println("Exception waiting for axfo to finish: " + e.getMessage());
+	}
+
+	if (outputFlush != null) {
+	    try {
+		outputFlush.join();
+	    } catch (InterruptedException e) {
+		System.err.println("Exception output flush: " + e.getMessage());
+	    }
+	}
+
+	if (errorParser != null) {
+	    try {
+		errorParser.join();
+	    } catch (InterruptedException e) {
+		System.err.println("Exception joining error parser: " + e.getMessage());
+	    }
+	}
+
         if (exitCode != 0) {
             if (errorParser != null && errorParser.LastErrorCode != 0) {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
@@ -257,27 +287,66 @@ public class XfoObj {
 		cmdArray.add("@STDOUT");
 		cmdArray.add("-p");
 		cmdArray.add(outDevice);
-		
+
 		Process process;
 		ErrorParser errorParser = null;
+		StreamCopyThread scInput = null;
+		StreamCopyThread scOutput = null;
+
 		int exitCode = -1;
 
 		try {
 			String[] s = new String[0];
-			process = this.r.exec(cmdArray.toArray(s));
+			try {
+			    process = this.r.exec(cmdArray.toArray(s));
+			} catch (IOException ioex) {
+			    System.err.println("render() couldn't invoke axfo: " + ioex.getMessage());
+			    return;
+			}
 			try {
 				InputStream StdErr = process.getErrorStream();
 				errorParser = new ErrorParser(StdErr, this.messageListener);
 				errorParser.start();
-				(new StreamCopyThread(process.getInputStream(), dst)).start();
-				(new StreamCopyThread(src, process.getOutputStream())).start();
+
+				scInput = new StreamCopyThread(process.getInputStream(), dst);
+				scInput.start();
+				scOutput = new StreamCopyThread(src, process.getOutputStream());
+				scOutput.start();
+
 			} catch (Exception e) {
-				e.printStackTrace();
+			    System.err.println("Exception creating threads in render(): " + e.getMessage());
+			    e.printStackTrace();
 			}
 			exitCode = process.waitFor();
 		} catch (Exception e) {
-			e.printStackTrace();
+		    System.err.println("Exception in render(): " + e.getMessage());
+		    e.printStackTrace();
 		}
+
+		if (scInput != null) {
+		    try {
+			scInput.join();
+		    } catch (InterruptedException e) {
+			System.err.println("Exception joining render input: " + e.getMessage());
+		    }
+		}
+
+		if (scOutput != null) {
+		    try {
+			scOutput.join();
+		    } catch (InterruptedException e) {
+			System.err.println("Exception joining render output: " + e.getMessage());
+		    }
+		}
+
+		if (errorParser != null) {
+		    try {
+			errorParser.join();
+		    } catch (InterruptedException e) {
+			System.err.println("Exception joining error parser: " + e.getMessage());
+		    }
+		}
+
 		if (exitCode != 0) {
 			if (errorParser != null && errorParser.LastErrorCode != 0) {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
@@ -782,8 +851,8 @@ class ErrorParser extends Thread {
                             this.LastErrorLevel = ErrorLevel;
                             this.LastErrorCode = ErrorCode;
                             this.LastErrorMessage = ErrorMessage;
-							if (this.listener != null)
-								this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
+			    if (this.listener != null)
+				this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
                         } catch (Exception e) {}
                     }
                 } else if (line.startsWith("Invalid license.")) {
