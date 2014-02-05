@@ -839,7 +839,7 @@ class ErrorParser extends Thread {
             String line = reader.readLine();
 	    String fullMessage;
 
-	    System.err.println(line);
+	    //System.err.println(line);
 	    fullMessage = line + "\n";
 
             while (line != null) {
@@ -898,6 +898,8 @@ class ErrorParser extends Thread {
 		}
 	    }
 
-        } catch (Exception e) {}
+        } catch (Exception e) {
+	    System.err.println("Exception in error parsing thread: " + e.getMessage());
+	}
     }
 }
