@@ -34,7 +34,7 @@ public class XfoObj {
 		"AXF41_HOME",
 		"AXF4_HOME"};
 
-	private static final HashMap<String, Integer> AH_VER_MAP;
+    private static final HashMap<String, Integer> AH_VER_MAP;
 	static {
 		Integer zero = new Integer(0);
 		AH_VER_MAP = new HashMap<String, Integer>();
@@ -73,8 +73,8 @@ public class XfoObj {
     private Runtime r;
     private MessageListener messageListener;
     private LinkedHashMap<String, String> args;
-	private ArrayList<String> userCSS;
-	private XfoException lastError;
+    private ArrayList<String> userCSS;
+    private XfoException lastError;
     
     // Methods
     /**
@@ -108,7 +108,7 @@ public class XfoObj {
 					}
 				}
 				if ((axf_home == null) || axf_home.equals(""))
-					throw new Exception();
+					throw new Exception("axf home is unset");
 			} catch (Exception e) {
 				throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 			}
@@ -177,8 +177,9 @@ public class XfoObj {
 	    try {
 		process = this.r.exec(cmdArray.toArray(s));
 	    } catch (IOException ioex) {
-		System.err.println("couldn't invoke axfo: " + ioex.getMessage());
-		throw new XfoException(4, 0, "couldn't invoke axfo: " + ioex.getMessage());
+		String msg = "couldn't invoke axfo: " + ioex.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
 	    }
 	    try {
 		InputStream StdErr = process.getErrorStream();
@@ -188,25 +189,30 @@ public class XfoObj {
 		outputFlush = new StreamFlusher(StdOut);
 		outputFlush.start();
 	    } catch (Exception e) {
-		System.err.println("Exception getting streams: " + e.getMessage());
-		throw new XfoException(4, 0, "Exception initializing axfo streams: " + e.getMessage());
+		String msg = "Exception getting streams: " + e.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
 	    }
 	    try {
 		exitCode = process.waitFor();
 	    } catch (InterruptedException e) {
-		System.err.println("InterruptedException waiting for axfo to finish: " + e.getMessage());
-		throw new XfoException(4, 0, "InterruptedException waiting for  axfo to finish: " + e.getMessage());
+		String msg = "InterruptedException waiting for axfo to finish: " + e.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
 	    }
         } catch (Exception e) {
-	    System.err.println("Exception waiting for axfo to finish: " + e.getMessage());
-	    throw new XfoException(4, 0, "Exception waiting for  axfo to finish: " + e.getMessage());
+	    String msg = "Exception waiting for axfo to finish: " + e.getMessage();
+	    System.err.println(msg);
+	    throw new XfoException(4, 0, msg);
 	}
 
 	if (outputFlush != null) {
 	    try {
 		outputFlush.join();
 	    } catch (InterruptedException e) {
-		System.err.println("Exception output flush: " + e.getMessage());
+		String msg = "Exception output flush: " + e.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
 	    }
 	}
 
@@ -214,7 +220,9 @@ public class XfoObj {
 	    try {
 		errorParser.join();
 	    } catch (InterruptedException e) {
-		System.err.println("Exception joining error parser: " + e.getMessage());
+		String msg = "Exception joining error parser: " + e.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
 	    }
 	}
 
@@ -223,7 +231,7 @@ public class XfoObj {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
             } else {
-                throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + " last message: " + errorParser.LastErrorMessage);
+                throw new XfoException(4, 0, "Axfo Exit code: " + exitCode + " last message: " + errorParser.LastErrorMessage);
             }
         }
     }
@@ -303,8 +311,9 @@ public class XfoObj {
 			try {
 			    process = this.r.exec(cmdArray.toArray(s));
 			} catch (IOException ioex) {
-			    System.err.println("render() couldn't invoke axfo: " + ioex.getMessage());
-			    return;
+			    String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
+			    System.err.println(msg);
+			    throw new XfoException(4, 0, msg);
 			}
 			try {
 				InputStream StdErr = process.getErrorStream();
@@ -317,20 +326,26 @@ public class XfoObj {
 				scOutput.start();
 
 			} catch (Exception e) {
-			    System.err.println("Exception creating threads in render(): " + e.getMessage());
-			    e.printStackTrace();
+			    String msg = "Exception creating threads in render(): " + e.getMessage();
+			    System.err.println(msg);
+			    //e.printStackTrace();
+			    throw new XfoException(4, 0, msg);
 			}
 			exitCode = process.waitFor();
 		} catch (Exception e) {
-		    System.err.println("Exception in render(): " + e.getMessage());
-		    e.printStackTrace();
+		    String msg = "Exception in render(): " + e.getMessage();
+		    System.err.println(msg);
+		    //e.printStackTrace();
+		    throw new XfoException(4, 0, msg);
 		}
 
 		if (scInput != null) {
 		    try {
 			scInput.join();
 		    } catch (InterruptedException e) {
-			System.err.println("Exception joining render input: " + e.getMessage());
+			String msg = "Exception joining render input: " + e.getMessage();
+			System.err.println(msg);
+			throw new XfoException(4, 0, msg);
 		    }
 		}
 
@@ -338,7 +353,9 @@ public class XfoObj {
 		    try {
 			scOutput.join();
 		    } catch (InterruptedException e) {
-			System.err.println("Exception joining render output: " + e.getMessage());
+			String msg = "Exception joining render output: " + e.getMessage();
+			System.err.println(msg);
+			throw new XfoException(4, 0, msg);
 		    }
 		}
 
@@ -346,7 +363,9 @@ public class XfoObj {
 		    try {
 			errorParser.join();
 		    } catch (InterruptedException e) {
-			System.err.println("Exception joining error parser: " + e.getMessage());
+			String msg = "Exception joining error parser: " + e.getMessage();
+			System.err.println(msg);
+			throw new XfoException(4, 0, msg);
 		    }
 		}
 
@@ -355,7 +374,7 @@ public class XfoObj {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
 			} else {
-				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + " render 2");
+				throw new XfoException(4, 0, "Exit code: " + exitCode + " render 2 last message: " + errorParser.LastErrorMessage);
 			}
 		}
     }
@@ -787,10 +806,15 @@ class StreamCopyThread extends Thread {
 				this.outStream.write(buff, 0, len);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+		    System.err.println("Exception copying streams: " + e.getMessage());
+		    e.printStackTrace();
 		} finally {
-			try {inStream.close();} catch (Exception e) {}
-			try {outStream.close();} catch (Exception e) {}
+			try {inStream.close();} catch (Exception e) {
+			    System.err.println("Exception closing input stream: " + e.getMessage());
+			}
+			try {outStream.close();} catch (Exception e) {
+			    System.err.println("Exception closing output stream: " + e.getMessage());
+			}
 		}
 	}
 }
@@ -811,7 +835,7 @@ class StreamFlusher extends Thread {
 		line = reader.readLine();
 	    }
 	} catch (IOException e) {
-
+	    System.err.println("IOException flushing stream: " + e.getMessage());
 	}
     }
 
@@ -839,7 +863,7 @@ class ErrorParser extends Thread {
             String line = reader.readLine();
 	    String fullMessage;
 
-	    //System.err.println(line);
+	    System.err.println(line);
 	    fullMessage = line + "\n";
 
             while (line != null) {
@@ -864,13 +888,14 @@ class ErrorParser extends Thread {
 			    errorParsed = true;
                         } catch (Exception e) {
 			    System.err.println("Exception in error parser: " + e.getMessage());
+			    //FIXME throw exception?
 			}
                     }
                 } else if (line.startsWith("Invalid license.")) {
 					int ErrorLevel = 4;
 					int ErrorCode = 24579;
-					String ErrorMessage = line 
-						+ "\n" + reader.readLine() 
+					String ErrorMessage = line
+						+ "\n" + reader.readLine()
 						+ "\n" + reader.readLine();
 					this.LastErrorLevel = ErrorLevel;
 					this.LastErrorCode = ErrorCode;
@@ -900,6 +925,7 @@ class ErrorParser extends Thread {
 
         } catch (Exception e) {
 	    System.err.println("Exception in error parsing thread: " + e.getMessage());
+	    //FIXME throw exception
 	}
     }
 }
