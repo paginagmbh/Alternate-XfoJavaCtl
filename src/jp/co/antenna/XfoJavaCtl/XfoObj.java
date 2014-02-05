@@ -170,16 +170,20 @@ public class XfoObj {
         // Run Formatter with Runtime.exec()
         Process process;
         ErrorParser errorParser = null;
+	StreamFlusher outputFlush = null;
         int exitCode = -1;
         try {
 			String[] s = new String[0];
-            process = this.r.exec(cmdArray.toArray(s));
+			process = this.r.exec(cmdArray.toArray(s));
 			try {
 				InputStream StdErr = process.getErrorStream();
+				InputStream StdOut = process.getInputStream();
 				errorParser = new ErrorParser(StdErr, this.messageListener);
 				errorParser.start();
+				outputFlush = new StreamFlusher(StdOut);
+				outputFlush.start();
 			} catch (Exception e) {}
-            exitCode = process.waitFor();
+			exitCode = process.waitFor();
         } catch (Exception e) {}
         if (exitCode != 0) {
             if (errorParser != null && errorParser.LastErrorCode != 0) {
@@ -719,13 +723,36 @@ class StreamCopyThread extends Thread {
 	}
 }
 
+class StreamFlusher extends Thread {
+    private InputStream stream;
+
+    public StreamFlusher (InputStream stream) {
+	this.stream = stream;
+    }
+
+    @Override
+    public void run () {
+	BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+	try {
+	    String line = reader.readLine();
+	    while (line != null) {
+		line = reader.readLine();
+	    }
+	} catch (IOException e) {
+
+	}
+    }
+
+}
+
 class ErrorParser extends Thread {
     private InputStream ErrorStream;
     private MessageListener listener;
     public int LastErrorLevel;
     public int LastErrorCode;
     public String LastErrorMessage;
-    
+
+
     public ErrorParser (InputStream ErrorStream, MessageListener listener) {
         this.ErrorStream = ErrorStream;
         this.listener = listener;
