@@ -178,7 +178,7 @@ public class XfoObj {
 		process = this.r.exec(cmdArray.toArray(s));
 	    } catch (IOException ioex) {
 		System.err.println("couldn't invoke axfo: " + ioex.getMessage());
-		return;
+		throw new XfoException(4, 0, "couldn't invoke axfo: " + ioex.getMessage());
 	    }
 	    try {
 		InputStream StdErr = process.getErrorStream();
@@ -189,14 +189,17 @@ public class XfoObj {
 		outputFlush.start();
 	    } catch (Exception e) {
 		System.err.println("Exception getting streams: " + e.getMessage());
+		throw new XfoException(4, 0, "Exception initializing axfo streams: " + e.getMessage());
 	    }
 	    try {
 		exitCode = process.waitFor();
 	    } catch (InterruptedException e) {
 		System.err.println("InterruptedException waiting for axfo to finish: " + e.getMessage());
+		throw new XfoException(4, 0, "InterruptedException waiting for  axfo to finish: " + e.getMessage());
 	    }
         } catch (Exception e) {
 	    System.err.println("Exception waiting for axfo to finish: " + e.getMessage());
+	    throw new XfoException(4, 0, "Exception waiting for  axfo to finish: " + e.getMessage());
 	}
 
 	if (outputFlush != null) {
