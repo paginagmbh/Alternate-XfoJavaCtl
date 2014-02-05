@@ -831,9 +831,14 @@ class ErrorParser extends Thread {
     public void run () {
         try {
             // stuff
+	    boolean errorParsed = false;
             BufferedReader reader = new BufferedReader(new InputStreamReader(this.ErrorStream));
             String line = reader.readLine();
-			System.err.println(line);
+	    String fullMessage;
+
+	    System.err.println(line);
+	    fullMessage = line + "\n";
+
             while (line != null) {
                 if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                     if (line.contains("Error Level")) {
@@ -853,7 +858,10 @@ class ErrorParser extends Thread {
                             this.LastErrorMessage = ErrorMessage;
 			    if (this.listener != null)
 				this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
-                        } catch (Exception e) {}
+			    errorParsed = true;
+                        } catch (Exception e) {
+			    System.err.println("Exception in error parser: " + e.getMessage());
+			}
                     }
                 } else if (line.startsWith("Invalid license.")) {
 					int ErrorLevel = 4;
@@ -866,9 +874,27 @@ class ErrorParser extends Thread {
 					this.LastErrorMessage = ErrorMessage;
 					if (this.listener != null)
 						this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
-				}
+					errorParsed = true;
+		} else {
+		    // unknown error
+		}
+
                 line = reader.readLine();
+		if (line != null) {
+		    fullMessage += line + "\n";
+		} else {
+
+		}
             }
+
+	    if (!errorParsed) {
+		this.LastErrorCode = 0;
+		this.LastErrorMessage = fullMessage;
+		if (this.listener != null) {
+		    //this.listener.onMessage(-1, -1, this.LastErrorMessage);
+		}
+	    }
+
         } catch (Exception e) {}
     }
 }
