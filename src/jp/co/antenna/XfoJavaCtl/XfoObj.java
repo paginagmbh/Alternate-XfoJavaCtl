@@ -790,14 +790,14 @@ public class XfoObj {
         String opt = "-start";
         if (this.args.containsKey(opt))
             this.args.remove(opt);
-        this.args.put(opt, String.valueOf(level));
+        this.args.put(opt, String.valueOf(num));
     }
 
     public void setEndPage (int num) throws XfoException {
         String opt = "-end";
         if (this.args.containsKey(opt))
             this.args.remove(opt);
-        this.args.put(opt, String.valueOf(level));
+        this.args.put(opt, String.valueOf(num));
     }
 
 }
