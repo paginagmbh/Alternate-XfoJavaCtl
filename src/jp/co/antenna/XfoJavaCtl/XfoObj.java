@@ -781,10 +781,25 @@ public class XfoObj {
     public void addOptionFileURI (String path) {
         this.setOptionFileURI(path);
     }
-    
+
     public void setXSLTParam (String paramName, String value) {
         // fill it in
     }
+
+    public void setStartPage (int num) throws XfoException {
+        String opt = "-start";
+        if (this.args.containsKey(opt))
+            this.args.remove(opt);
+        this.args.put(opt, String.valueOf(level));
+    }
+
+    public void setEndPage (int num) throws XfoException {
+        String opt = "-end";
+        if (this.args.containsKey(opt))
+            this.args.remove(opt);
+        this.args.put(opt, String.valueOf(level));
+    }
+
 }
 
 class StreamCopyThread extends Thread {
