@@ -23,16 +23,17 @@ public class XfoObj {
     public static final int EST_STDOUT = 1;
     public static final int EST_STDERR = 2;
     private static final String[] AH_HOME_ENV = {
+	"AHF62_64_HOME", "AHF62_HOME",
         "AHF61_64_HOME", "AHF61_HOME",
-		"AHF60_64_HOME", "AHF60_HOME",
-		"AHF53_64_HOME", "AHF53_HOME",
-		"AHF52_64_HOME", "AHF52_HOME",
-		"AHF51_64_HOME", "AHF51_HOME",
-		"AHF50_64_HOME", "AHF50_HOME",
-		"AXF43_64_HOME", "AXF43_HOME",
-		"AXF42_HOME",
-		"AXF41_HOME",
-		"AXF4_HOME"};
+	"AHF60_64_HOME", "AHF60_HOME",
+	"AHF53_64_HOME", "AHF53_HOME",
+	"AHF52_64_HOME", "AHF52_HOME",
+	"AHF51_64_HOME", "AHF51_HOME",
+	"AHF50_64_HOME", "AHF50_HOME",
+	"AXF43_64_HOME", "AXF43_HOME",
+	"AXF42_HOME",
+	"AXF41_HOME",
+	"AXF4_HOME"};
 
     private static final HashMap<String, Integer> AH_VER_MAP;
 	static {
