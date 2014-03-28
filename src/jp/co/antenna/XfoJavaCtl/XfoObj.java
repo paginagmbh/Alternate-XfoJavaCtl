@@ -76,11 +76,26 @@ public class XfoObj {
     private LinkedHashMap<String, String> args;
     private ArrayList<String> userCSS;
     private XfoException lastError;
-    
+
     // Methods
+
+    /* assumes keys are of type AHFxxx_HOME where 'x's are integers */
+    int parseFormatterVersionFromKey (String key) {
+	String sub = key.substring(3, key.length() - "_HOME".length());
+	int version = 0;
+
+	try {
+	    version = Integer.parseInt(sub);
+	} catch (NumberFormatException e) {
+	    // pass, just return 0
+	}
+
+	return version;
+    }
+
     /**
      * Create the instance of XfoObj, and initialize it.
-     * 
+     *
      * @throws XfoException
      */
     public XfoObj () throws XfoException {
@@ -96,9 +111,10 @@ public class XfoObj {
 		String axf_home;
 		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
+		Map<String, String> env = System.getenv();
+
 		if ((axf_home == null) || axf_home.equals("")) {
 			try {
-				Map<String, String> env = System.getenv();
 				for (String key: AH_HOME_ENV) {
 					if (env.containsKey(key)) {
 						axf_home = env.get(key);
@@ -108,6 +124,37 @@ public class XfoObj {
 						break;
 					}
 				}
+
+				// check possible future versions of Formatter
+				if (axf_home == null  ||  axf_home.equals("")) {
+				    boolean isWindows = os.contains("windows");
+				    String foundKey = "";
+				    int foundVersion = 0;
+
+				    //List<String> foundKeys = new List<String>();
+
+				    for (String key: env.keySet()) {
+					String ukey;
+					if (isWindows) {
+					    ukey = key.toUpperCase();
+					} else {
+					    ukey = key;
+					}
+
+					if (ukey.startsWith("AHF")  &&  ukey.endsWith("_HOME")) {
+					    int version = parseFormatterVersionFromKey(ukey);
+					    if (version > foundVersion) {
+						foundVersion = version;
+						foundKey = ukey;
+					    }
+					}
+				    } // end for (String key: ...
+
+				    if (!foundKey.equals("")) {
+					axf_home = env.get(foundKey);
+				    }
+				}
+
 				if ((axf_home == null) || axf_home.equals(""))
 					throw new Exception("axf home is unset");
 			} catch (Exception e) {
