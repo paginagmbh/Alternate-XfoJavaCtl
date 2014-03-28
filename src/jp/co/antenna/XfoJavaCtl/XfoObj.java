@@ -67,6 +67,21 @@ public class XfoObj {
 	private XfoException lastError;
     
     // Methods
+
+    /* assumes keys are of type AHFxxx_HOME where 'x's are integers */
+    int parseFormatterVersionFromKey (String key) {
+	String sub = key.substring(3, key.length() - "_HOME".length());
+	int version = 0;
+
+	try {
+	    version = Integer.parseInt(sub);
+	} catch (NumberFormatException e) {
+	    // pass, just return 0
+	}
+
+	return version;
+    }
+
     /**
      * Create the instance of XfoObj, and initialize it.
      * 
@@ -84,14 +99,46 @@ public class XfoObj {
 		}
 		String axf_home = null;
 		int axf_ver = 1;
+		Map<String, String> env = System.getenv();
+
 		try {
-			Map<String, String> env = System.getenv();
 			for (String key: AH_HOME_ENV) {
 				if (env.containsKey(key)) {
 					axf_home = env.get(key);
 					break;
 				}
 			}
+
+			// check possible future versions of Formatter
+			if (axf_home == null  ||  axf_home.equals("")) {
+			    boolean isWindows = os.contains("windows");
+			    String foundKey = "";
+			    int foundVersion = 0;
+
+			    //List<String> foundKeys = new List<String>();
+
+			    for (String key: env.keySet()) {
+				String ukey;
+				if (isWindows) {
+				    ukey = key.toUpperCase();
+				} else {
+				    ukey = key;
+				}
+
+				if (ukey.startsWith("AHF")  &&  ukey.endsWith("_HOME")) {
+				    int version = parseFormatterVersionFromKey(ukey);
+				    if (version > foundVersion) {
+					foundVersion = version;
+					foundKey = ukey;
+				    }
+				}
+			    } // end for (String key: ...
+
+			    if (!foundKey.equals("")) {
+				axf_home = env.get(foundKey);
+			    }
+			}
+
 			if ((axf_home == null) || axf_home.equals(""))
 				throw new Exception();
 		} catch (Exception e) {
