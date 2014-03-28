@@ -248,6 +248,8 @@ public class XfoObj {
 		System.err.println(msg);
 		throw new XfoException(4, 0, msg);
 	    }
+	} catch (XfoException e) {
+	    throw e;
         } catch (Exception e) {
 	    String msg = "Exception waiting for axfo to finish: " + e.getMessage();
 	    System.err.println(msg);
