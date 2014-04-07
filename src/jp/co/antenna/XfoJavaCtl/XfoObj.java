@@ -203,7 +203,7 @@ public class XfoObj {
      * 
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
-    public void execute () throws XfoException {
+    public void execute () throws XfoException, InterruptedException {
 		ArrayList<String> cmdArray = new ArrayList<String>();
 		cmdArray.add(this.executable);
 		for (String arg : this.args.keySet()) {
@@ -246,14 +246,34 @@ public class XfoObj {
 	    } catch (InterruptedException e) {
 		String msg = "InterruptedException waiting for axfo to finish: " + e.getMessage();
 		System.err.println(msg);
-		throw new XfoException(4, 0, msg);
+		//FIXME ahfcmd is still running though...
+		if (process != null) {
+		    process.destroy();
+		    process.waitFor();
+		    if (outputFlush != null) {
+			outputFlush.interrupt();
+			outputFlush.join();
+			//System.out.println("interrupting flush thread");
+		    }
+		    if (errorParser != null) {
+			errorParser.interrupt();
+			errorParser.join();
+			//System.out.println("interrupting error parsing thread");
+		    }
+		    //System.out.println("killed ahfcmd process");
+		}
+		Thread.interrupted();
+		//throw new XfoException(4, 0, msg);
+		throw new InterruptedException();
 	    }
 	} catch (XfoException e) {
 	    throw e;
+	    /*
         } catch (Exception e) {
 	    String msg = "Exception waiting for axfo to finish: " + e.getMessage();
 	    System.err.println(msg);
 	    throw new XfoException(4, 0, msg);
+	    */
 	}
 
 	if (outputFlush != null) {
@@ -987,7 +1007,6 @@ class ErrorParser extends Thread {
 		    //this.listener.onMessage(-1, -1, this.LastErrorMessage);
 		}
 	    }
-
         } catch (Exception e) {
 	    System.err.println("Exception in error parsing thread: " + e.getMessage());
 	    //FIXME throw exception
