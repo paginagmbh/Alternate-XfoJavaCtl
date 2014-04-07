@@ -282,7 +282,9 @@ public class XfoObj {
 	    } catch (InterruptedException e) {
 		String msg = "Exception output flush: " + e.getMessage();
 		System.err.println(msg);
-		throw new XfoException(4, 0, msg);
+		Thread.interrupted();
+		throw new InterruptedException();
+		//throw new XfoException(4, 0, msg);
 	    }
 	}
 
@@ -292,7 +294,9 @@ public class XfoObj {
 	    } catch (InterruptedException e) {
 		String msg = "Exception joining error parser: " + e.getMessage();
 		System.err.println(msg);
-		throw new XfoException(4, 0, msg);
+		Thread.interrupted();
+		//throw new XfoException(4, 0, msg);
+		throw new InterruptedException();
 	    }
 	}
 
@@ -350,7 +354,7 @@ public class XfoObj {
      * @param outDevice output device. Please refer to a setPrinterName method about the character string to specify. 
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
-    public void render (InputStream src, OutputStream dst, String outDevice) throws XfoException {
+    public void render (InputStream src, OutputStream dst, String outDevice) throws XfoException, InterruptedException {
 		ArrayList<String> cmdArray = new ArrayList<String>();
 		cmdArray.add(this.executable);
 		for (String arg : this.args.keySet()) {
@@ -415,7 +419,9 @@ public class XfoObj {
 		    } catch (InterruptedException e) {
 			String msg = "Exception joining render input: " + e.getMessage();
 			System.err.println(msg);
-			throw new XfoException(4, 0, msg);
+			Thread.interrupted();
+			throw new InterruptedException();
+			//throw new XfoException(4, 0, msg);
 		    }
 		}
 
@@ -425,7 +431,9 @@ public class XfoObj {
 		    } catch (InterruptedException e) {
 			String msg = "Exception joining render output: " + e.getMessage();
 			System.err.println(msg);
-			throw new XfoException(4, 0, msg);
+			Thread.interrupted();
+			throw new InterruptedException();
+			//throw new XfoException(4, 0, msg);
 		    }
 		}
 
@@ -435,7 +443,9 @@ public class XfoObj {
 		    } catch (InterruptedException e) {
 			String msg = "Exception joining error parser: " + e.getMessage();
 			System.err.println(msg);
-			throw new XfoException(4, 0, msg);
+			Thread.interrupted();
+			throw new InterruptedException();
+			//throw new XfoException(4, 0, msg);
 		    }
 		}
 
