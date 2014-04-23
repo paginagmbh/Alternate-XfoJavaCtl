@@ -20,7 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 public class XfoObj {
 
     public Process process = null;
-    public static volatile boolean processValid = true;
+    public volatile boolean processValid = true;
 
     // Consts
     public static final int EST_NONE = 0;
