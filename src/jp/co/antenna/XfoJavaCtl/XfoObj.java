@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 public class XfoObj {
 
     public Process process = null;
+    public static volatile boolean processValid = true;
 
     // Consts
     public static final int EST_NONE = 0;
@@ -200,6 +201,7 @@ public class XfoObj {
 	this.userCSS = new ArrayList<String>();
 	this.lastError = null;
 	this.process = null;
+	this.processValid = true;
     }
     
     /**
@@ -229,6 +231,7 @@ public class XfoObj {
 	    try {
 		process = this.r.exec(cmdArray.toArray(s));
 	    } catch (IOException ioex) {
+		processValid = false;
 		String msg = "couldn't invoke axfo: " + ioex.getMessage();
 		System.err.println(msg);
 		throw new XfoException(4, 0, msg);
