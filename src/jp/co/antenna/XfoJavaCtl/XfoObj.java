@@ -18,6 +18,9 @@ import javax.xml.transform.stream.StreamResult;
  * @author Test User
  */
 public class XfoObj {
+
+    public Process process = null;
+
     // Consts
     public static final int EST_NONE = 0;
     public static final int EST_STDOUT = 1;
@@ -196,6 +199,7 @@ public class XfoObj {
         this.messageListener = null;
 	this.userCSS = new ArrayList<String>();
 	this.lastError = null;
+	this.process = null;
     }
     
     /**
@@ -216,7 +220,7 @@ public class XfoObj {
 			cmdArray.add(css);
 		}
         // Run Formatter with Runtime.exec()
-        Process process;
+        //Process process;
         ErrorParser errorParser = null;
 	StreamFlusher outputFlush = null;
         int exitCode = -1;
@@ -373,7 +377,7 @@ public class XfoObj {
 		cmdArray.add("-p");
 		cmdArray.add(outDevice);
 
-		Process process;
+		//Process process;
 		ErrorParser errorParser = null;
 		StreamCopyThread scInput = null;
 		StreamCopyThread scOutput = null;
