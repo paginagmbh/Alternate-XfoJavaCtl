@@ -250,6 +250,7 @@ public class XfoObj {
 	    }
 	    try {
 		exitCode = process.waitFor();
+		process = null;
 	    } catch (InterruptedException e) {
 		String msg = "InterruptedException waiting for axfo to finish: " + e.getMessage();
 		System.err.println(msg);
@@ -257,6 +258,7 @@ public class XfoObj {
 		if (process != null) {
 		    process.destroy();
 		    process.waitFor();
+		    process = null;
 		    if (outputFlush != null) {
 			outputFlush.interrupt();
 			outputFlush.join();
@@ -274,6 +276,7 @@ public class XfoObj {
 		throw new InterruptedException();
 	    }
 	} catch (XfoException e) {
+	    // maybe set process = null here as well
 	    throw e;
 	    /*
         } catch (Exception e) {
@@ -887,6 +890,15 @@ public class XfoObj {
         this.args.put(opt, String.valueOf(num));
     }
 
+    /*
+    protected void finalize () throws Throwable {
+	try {
+	    System.out.println("testing axfo finalize()");
+	} finally {
+	    super.finalize();
+	}
+    }
+    */
 }
 
 class StreamCopyThread extends Thread {
