@@ -51,7 +51,7 @@ public class XfoObj {
 		AH_VER_MAP.put("AXF41_HOME", zero);
 		AH_VER_MAP.put("AXF4_HOME", zero);
 	}
-    
+
     public static final int S_PDF_EMBALLFONT_PART = 0;
     public static final int S_PDF_EMBALLFONT_ALL = 1;
     public static final int S_PDF_EMBALLFONT_BASE14 = 2;
@@ -74,7 +74,7 @@ public class XfoObj {
     public static final int S_PDF_VERSION_X_2_2003 = 105;
     public static final int S_PDF_VERSION_X_3_2002 = 103;
     public static final int S_PDF_VERSION_X_3_2003 = 106;
-	
+
     // Attributes
     private String executable;
     private Runtime r;
@@ -86,7 +86,7 @@ public class XfoObj {
     // Methods
 
     /* assumes keys are of type AHFxxx_HOME where 'x's are integers */
-    int parseFormatterVersionFromKey (String key) {
+    private int parseFormatterVersionFromKey (String key) {
 	String sub = key.substring(3, key.length() - "_HOME".length());
 	int version = 0;
 
@@ -205,10 +205,17 @@ public class XfoObj {
 	this.process = null;
 	this.processValid = true;
     }
-    
+
+    public void test () throws XfoException, InterruptedException {
+	//LinkedHashMap<String, String> origArgs = this.args;
+	versionCheck(true);
+	execute();
+	versionCheck(false);
+    }
+
     /**
-     * Execute formatting and outputs to a PDF. 
-     * 
+     * Execute formatting and outputs to a PDF.
+     *
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
     public void execute () throws XfoException, InterruptedException {
@@ -323,6 +330,7 @@ public class XfoObj {
             }
         }
     }
+
 
 	public int getErrorCode () throws XfoException {
 		if (this.lastError == null)
@@ -501,7 +509,16 @@ public class XfoObj {
 			throw new XfoException(4, 0, "XSLT Transformation failed: " + e.toString() + " render 2");
 		}
 	}
-    
+
+    private void versionCheck (boolean check) {
+        String opt = "-v";
+        if (check) {
+            this.args.put(opt, null);
+        } else {
+            this.args.remove(opt);
+        }
+    }
+
 	/**
 	 * Sets the default base URI.
 	 *
