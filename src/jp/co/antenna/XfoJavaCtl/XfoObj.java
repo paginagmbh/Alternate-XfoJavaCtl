@@ -23,6 +23,7 @@ public class XfoObj {
     public volatile boolean processValid = true;
     public int formatterMajorVersion = 0;
     public int formatterMinorVersion = 0;
+    public String formatterRevision = "";
 
     // Consts
     public static final int EST_NONE = 0;
@@ -312,6 +313,7 @@ public class XfoObj {
 		errorParser.join();
 		formatterMajorVersion = errorParser.majorVersion;
 		formatterMinorVersion = errorParser.minorVersion;
+		formatterRevision = errorParser.revision;
 	    } catch (InterruptedException e) {
 		String msg = "Exception joining error parser: " + e.getMessage();
 		System.err.println(msg);
@@ -464,6 +466,7 @@ public class XfoObj {
 			errorParser.join();
 			formatterMajorVersion = errorParser.majorVersion;
 			formatterMinorVersion = errorParser.minorVersion;
+			formatterRevision = errorParser.revision;
 		    } catch (InterruptedException e) {
 			String msg = "Exception joining error parser: " + e.getMessage();
 			System.err.println(msg);
@@ -987,7 +990,7 @@ class ErrorParser extends Thread {
 
     public int majorVersion = 0;
     public int minorVersion = 0;
-    //FIXME revision (r1, mr9, etc..)
+    public String revision = "";  // ex:  r1, mr9, etc.
 
     public ErrorParser (InputStream ErrorStream, MessageListener listener) {
         this.ErrorStream = ErrorStream;
@@ -1007,6 +1010,7 @@ class ErrorParser extends Thread {
 
             while (line != null) {
 		// check for version
+		// AHFCmd : AH Formatter V6.2 MR1 for Linux : 6.2.3.16772 (2014/04/30 10:59JST)
 		if (line.startsWith("XSLCmd : XSL Formatter V")  ||  line.startsWith("AHFCmd : AH Formatter V")) {
 		    String[] words = line.split(" ");
 
@@ -1018,6 +1022,9 @@ class ErrorParser extends Thread {
 			    try {
 				majorVersion = Integer.parseInt(vs[0]);
 				minorVersion = Integer.parseInt(vs[1]);
+				if (words.length >= 6) {
+				    revision = words[5];
+				}
 				//FIXME revision (r1, mr9, etc..)
 				//System.out.println("Formatter version: " + majorVersion + " " + minorVersion);
 			    } catch (NumberFormatException e) {
