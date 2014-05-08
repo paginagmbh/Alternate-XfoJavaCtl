@@ -208,18 +208,13 @@ public class XfoObj {
     }
 
     public void test () throws XfoException, InterruptedException {
-	//LinkedHashMap<String, String> origArgs = this.args;
 	versionCheck(true);
 	try {
 	    execute();
 	} catch (XfoException e) {
-	    // older versions of Formatter will have a '1' exit code when
-	    // version is printed
-	    //System.out.println(lastError);
-	    //System.out.println(e.getErrorMessage());
-
-	    if (lastError == null  &&  formatterMajorVersion > 0) {
-		// older Formatter version that returns 1 with -v option
+	    // older versions of Formatter (<= 6.0) will have a '1' exit code
+	    // when version is printed
+	    if (e.getErrorCode() == 0  &&  formatterMajorVersion > 0) {
 		// pass
 	    } else {
 		throw e;
@@ -1026,24 +1021,30 @@ class ErrorParser extends Thread {
             while (line != null) {
 		// check for version
 		// AHFCmd : AH Formatter V6.2 MR1 for Linux : 6.2.3.16772 (2014/04/30 10:59JST)
-		if (line.startsWith("XSLCmd : XSL Formatter V")  ||  line.startsWith("AHFCmd : AH Formatter V")) {
+		// can also be of the form:
+		// AHFCmd : AH XSL Formatter V6.0 MR7 for Windows : 6.0.8.9416 (2013/02/26 10:36JST)
+		// can't depend on the version token being at a split word
+		// position
+
+		if (line.startsWith("XSLCmd : XSL ")  ||  line.startsWith("AHFCmd : AH ")) {
 		    String[] words = line.split(" ");
 
-		    if (words.length >= 5) {
-			String[] vs = words[4].substring(1, words[4].length()).split("\\.");
-			if (vs.length < 2) {
-			    System.err.println("axfo: couldn't get version string");
-			} else {
-			    try {
-				majorVersion = Integer.parseInt(vs[0]);
-				minorVersion = Integer.parseInt(vs[1]);
-				if (words.length >= 6) {
-				    revision = words[5];
+		    for (int i = 0;  i < words.length - 1;  i++) {
+			String word = words[i];
+			if (word.length() > 3  &&  word.charAt(0) == 'V' &&  Character.isDigit(word.charAt(1))) {
+			    // possibly got the version string
+			    String[] vs = word.substring(1).split("\\.");
+			    if (vs.length < 2) {
+				System.err.println("axfo: couldn't get version string");
+			    } else {
+				try {
+				    majorVersion = Integer.parseInt(vs[0]);
+				    minorVersion = Integer.parseInt(vs[1]);
+				    revision = words[i + 1];
+				    //System.out.println("Formatter version: " + majorVersion + " " + minorVersion);
+				} catch (NumberFormatException e) {
+				    System.err.println("axfo: couldn't parse version " + vs[0] + " " + vs[1]);
 				}
-				//FIXME revision (r1, mr9, etc..)
-				//System.out.println("Formatter version: " + majorVersion + " " + minorVersion);
-			    } catch (NumberFormatException e) {
-				System.err.println("axfo: couldn't parse version " + vs[0] + " " + vs[1]);
 			    }
 			}
 		    }
