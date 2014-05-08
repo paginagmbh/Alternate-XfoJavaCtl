@@ -794,7 +794,17 @@ class ErrorParser extends Thread {
 					this.LastErrorMessage = ErrorMessage;
 					if (this.listener != null)
 						this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
-				}
+		} else if (line.startsWith("Evaluation license is expired:")) {
+			int ErrorLevel = 4;
+			int ErrorCode = 24591;
+			String ErrorMessage = line;
+			this.LastErrorLevel = ErrorLevel;
+			this.LastErrorCode = ErrorCode;
+			this.LastErrorMessage = ErrorMessage;
+			if (this.listener != null)
+			    this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
+		}
+
                 line = reader.readLine();
             }
         } catch (Exception e) {}
