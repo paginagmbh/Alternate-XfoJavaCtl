@@ -210,8 +210,23 @@ public class XfoObj {
     public void test () throws XfoException, InterruptedException {
 	//LinkedHashMap<String, String> origArgs = this.args;
 	versionCheck(true);
-	execute();
-	versionCheck(false);
+	try {
+	    execute();
+	} catch (XfoException e) {
+	    // older versions of Formatter will have a '1' exit code when
+	    // version is printed
+	    //System.out.println(lastError);
+	    //System.out.println(e.getErrorMessage());
+
+	    if (lastError == null  &&  formatterMajorVersion > 0) {
+		// older Formatter version that returns 1 with -v option
+		// pass
+	    } else {
+		throw e;
+	    }
+	} finally {
+	    versionCheck(false);
+	}
     }
 
     /**
