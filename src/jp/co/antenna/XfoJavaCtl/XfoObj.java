@@ -21,6 +21,8 @@ public class XfoObj {
 
     public Process process = null;
     public volatile boolean processValid = true;
+    public int formatterMajorVersion = 0;
+    public int formatterMinorVersion = 0;
 
     // Consts
     public static final int EST_NONE = 0;
@@ -301,6 +303,8 @@ public class XfoObj {
 	if (errorParser != null) {
 	    try {
 		errorParser.join();
+		formatterMajorVersion = errorParser.majorVersion;
+		formatterMinorVersion = errorParser.minorVersion;
 	    } catch (InterruptedException e) {
 		String msg = "Exception joining error parser: " + e.getMessage();
 		System.err.println(msg);
@@ -313,7 +317,7 @@ public class XfoObj {
         if (exitCode != 0) {
             if (errorParser != null && errorParser.LastErrorCode != 0) {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
-				throw this.lastError;
+		throw this.lastError;
             } else {
                 throw new XfoException(4, 0, "Axfo Exit code: " + exitCode + " last message: " + errorParser.LastErrorMessage);
             }
@@ -450,6 +454,8 @@ public class XfoObj {
 		if (errorParser != null) {
 		    try {
 			errorParser.join();
+			formatterMajorVersion = errorParser.majorVersion;
+			formatterMinorVersion = errorParser.minorVersion;
 		    } catch (InterruptedException e) {
 			String msg = "Exception joining error parser: " + e.getMessage();
 			System.err.println(msg);
@@ -962,16 +968,18 @@ class ErrorParser extends Thread {
     public int LastErrorCode;
     public String LastErrorMessage;
 
+    public int majorVersion = 0;
+    public int minorVersion = 0;
+    //FIXME revision (r1, mr9, etc..)
 
     public ErrorParser (InputStream ErrorStream, MessageListener listener) {
         this.ErrorStream = ErrorStream;
         this.listener = listener;
     }
-    
+
     @Override
     public void run () {
         try {
-            // stuff
 	    boolean errorParsed = false;
             BufferedReader reader = new BufferedReader(new InputStreamReader(this.ErrorStream));
             String line = reader.readLine();
@@ -981,9 +989,28 @@ class ErrorParser extends Thread {
 	    fullMessage = line + "\n";
 
             while (line != null) {
-                if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
+		// check for version
+		if (line.startsWith("XSLCmd : XSL Formatter V")  ||  line.startsWith("AHFCmd : AH Formatter V")) {
+		    String[] words = line.split(" ");
+
+		    if (words.length >= 5) {
+			String[] vs = words[4].substring(1, words[4].length()).split("\\.");
+			if (vs.length < 2) {
+			    System.err.println("axfo: couldn't get version string");
+			} else {
+			    try {
+				majorVersion = Integer.parseInt(vs[0]);
+				minorVersion = Integer.parseInt(vs[1]);
+				//FIXME revision (r1, mr9, etc..)
+				//System.out.println("Formatter version: " + majorVersion + " " + minorVersion);
+			    } catch (NumberFormatException e) {
+				System.err.println("axfo: couldn't parse version " + vs[0] + " " + vs[1]);
+			    }
+			}
+		    }
+		} else if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                     if (line.contains("Error Level")) {
-						System.err.println(line);
+			System.err.println(line);
                         try {
                             int ErrorLevel = Integer.parseInt(line.substring(line.length() - 1, line.length()));
                             line = reader.readLine();
@@ -991,6 +1018,7 @@ class ErrorParser extends Thread {
                             line = reader.readLine();
                             String ErrorMessage = line.split(" ", 3)[2];
                             line = reader.readLine();
+			    //FIXME redundant check for startsWith()
                             if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                                 ErrorMessage += "\n" + line.split(" ", 3)[2];
                             }
