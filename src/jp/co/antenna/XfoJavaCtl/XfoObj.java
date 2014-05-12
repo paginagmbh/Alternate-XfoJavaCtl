@@ -1026,7 +1026,8 @@ class ErrorParser extends Thread {
 		// can't depend on the version token being at a split word
 		// position
 
-		if (line.startsWith("XSLCmd : XSL ")  ||  line.startsWith("AHFCmd : AH ")) {
+		if (revision.equals("")  &&
+		    (line.startsWith("XSLCmd : XSL ")  ||  line.startsWith("AHFCmd : AH "))) {
 		    String[] words = line.split(" ");
 
 		    for (int i = 0;  i < words.length - 1;  i++) {
