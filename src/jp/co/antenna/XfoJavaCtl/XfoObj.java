@@ -197,7 +197,7 @@ public class XfoObj {
      * Cleanup (initialize) XSL Formatter engine.
      */
     public void clear () {
-        // reset attributes        
+        // reset attributes
         this.r = Runtime.getRuntime();
         this.args = new LinkedHashMap<String, String>();
         this.messageListener = null;
@@ -207,6 +207,10 @@ public class XfoObj {
 	this.processValid = true;
     }
 
+    //FIXME removing since '-v' option isn't a good test to see if Formatter
+    // is working correctly since it will exit with code 1 in older versions.
+
+    /*
     public void test () throws XfoException, InterruptedException {
 	versionCheck(true);
 	try {
@@ -223,6 +227,7 @@ public class XfoObj {
 	    versionCheck(false);
 	}
     }
+    */
 
     /**
      * Execute formatting and outputs to a PDF.
