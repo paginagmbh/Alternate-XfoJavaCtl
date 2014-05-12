@@ -1048,7 +1048,9 @@ class ErrorParser extends Thread {
 			    }
 			}
 		    }
-		} else if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
+		}
+
+		if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                     if (line.contains("Error Level")) {
 			System.err.println(line);
                         try {
