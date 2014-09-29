@@ -100,6 +100,78 @@ public class XfoObj {
 	return version;
     }
 
+    private File checkForLattestUnixFormatterDirectory (String os) {
+
+	// only used with unix versions
+	if (os.contains("Windows")) {
+	    return null;
+	}
+
+	String baseDir = "";
+	String dirNamePattern = "";
+
+	if (os.contains("Mac OS X")) {
+	    // /usr/local/AHFormatterV62
+
+	    baseDir = "/usr/local";
+	    dirNamePattern = "AHFormatterV";
+	} else if (os.contains("SunOS")) {
+	    // /opt/ANTHahfv62
+
+	    baseDir = "/opt";
+	    dirNamePattern = "ANTHahfv";
+	} else {  // default to Linux
+	    // /usr/AHFormatterV62     32 bit
+	    // /usr/AHFormatterV62_64  64 bit
+
+	    baseDir = "/usr";
+	    dirNamePattern = "AHFormatterV";
+	}
+
+
+	File dir = new File(baseDir);
+	File[] files = dir.listFiles();
+
+	File foundDir = null;
+	int foundVersion = 0;
+
+	for (File f : files) {
+	    String name = f.getName();
+	    boolean bit64 = false;
+
+	    //System.out.println("file: " + f.getName());
+	    if (name.startsWith(dirNamePattern)) {
+		String versionString;
+		int version = 0;
+
+		//System.out.println("checking...");
+		if (name.endsWith("_64")) {
+		    bit64 = true;
+		    versionString = name.substring(dirNamePattern.length(), name.length() - 3);
+		} else {
+		    versionString = name.substring(dirNamePattern.length());
+		}
+
+		//System.out.println("version string: " + versionString);
+		try {
+		    version = Integer.parseInt(versionString);
+		} catch (NumberFormatException e) {
+		    // pass, leave at zero
+		}
+
+		if (version > foundVersion) {
+		    foundVersion = version;
+		    foundDir = f;
+		} else if (version == foundVersion  &&  bit64) {
+		    // preference for 64 bit versions
+		    foundDir = f;
+		}
+	    }
+	}  // end f : fileList
+
+	return foundDir;
+    }
+
     /**
      * Create the instance of XfoObj, and initialize it.
      *
@@ -169,61 +241,10 @@ public class XfoObj {
 
 				// check some default unix paths
 				if ((axf_home == null) || axf_home.equals("")) {
-				    File foundDir = null;
-				    int foundVersion = 0;
-
-				    if (os.contains("Mac OS X")) {
-					// /usr/local/AHFormatterV62
-
-				    } else if (os.contains("SunOS")) {
-
-				    } else if (!os.contains("Windows")) {
-					// default to Linux
-
-					// /usr/AHFormatterV62     32 bit
-					// /usr/AHFormatterV62_64  64 bit
-
-					File dir = new File("/usr");
-					File[] files = dir.listFiles();
-
-					for (File f : files) {
-					    String name = f.getName();
-					    boolean bit64 = false;
-
-					    //System.out.println("file: " + f.getName());
-					    if (name.startsWith("AHFormatterV")) {
-						String versionString;
-						int version = 0;
-
-						//System.out.println("checking...");
-						if (name.endsWith("_64")) {
-						    bit64 = true;
-						    versionString = name.substring(12, name.length() - 3);
-						} else {
-						    versionString = name.substring(12);
-						}
-
-						//System.out.println("version string: " + versionString);
-						try {
-						    version = Integer.parseInt(versionString);
-						} catch (NumberFormatException e) {
-						    // pass, leave at zero
-						}
-
-						if (version > foundVersion) {
-						    foundVersion = version;
-						    foundDir = f;
-						} else if (version == foundVersion  &&  bit64) {
-						    // preference for 64 bit versions
-						    foundDir = f;
-						}
-					    }
-					}  // end f : fileList
-
-					if (foundDir != null) {
-					    axf_home = foundDir.getAbsolutePath();
-					    useRunSh = true;
-					}
+				    File foundDir = checkForLattestUnixFormatterDirectory(os);
+				    if (foundDir != null) {
+					axf_home = foundDir.getAbsolutePath();
+					useRunSh = true;
 				    }
 				}
 
