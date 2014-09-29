@@ -118,6 +118,11 @@ public class XfoObj {
 		String axf_home;
 		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
+
+		// fallback to using unix run.sh script if Formatter
+		// environment variables aren't found
+		boolean useRunSh = false;
+
 		Map<String, String> env = System.getenv();
 
 		if ((axf_home == null) || axf_home.equals("")) {
@@ -162,6 +167,66 @@ public class XfoObj {
 				    }
 				}
 
+				// check some default unix paths
+				if ((axf_home == null) || axf_home.equals("")) {
+				    File foundDir = null;
+				    int foundVersion = 0;
+
+				    if (os.contains("Mac OS X")) {
+					// /usr/local/AHFormatterV62
+
+				    } else if (os.contains("SunOS")) {
+
+				    } else if (!os.contains("Windows")) {
+					// default to Linux
+
+					// /usr/AHFormatterV62     32 bit
+					// /usr/AHFormatterV62_64  64 bit
+
+					File dir = new File("/usr");
+					File[] files = dir.listFiles();
+
+					for (File f : files) {
+					    String name = f.getName();
+					    boolean bit64 = false;
+
+					    //System.out.println("file: " + f.getName());
+					    if (name.startsWith("AHFormatterV")) {
+						String versionString;
+						int version = 0;
+
+						//System.out.println("checking...");
+						if (name.endsWith("_64")) {
+						    bit64 = true;
+						    versionString = name.substring(12, name.length() - 3);
+						} else {
+						    versionString = name.substring(12);
+						}
+
+						//System.out.println("version string: " + versionString);
+						try {
+						    version = Integer.parseInt(versionString);
+						} catch (NumberFormatException e) {
+						    // pass, leave at zero
+						}
+
+						if (version > foundVersion) {
+						    foundVersion = version;
+						    foundDir = f;
+						} else if (version == foundVersion  &&  bit64) {
+						    // preference for 64 bit versions
+						    foundDir = f;
+						}
+					    }
+					}  // end f : fileList
+
+					if (foundDir != null) {
+					    axf_home = foundDir.getAbsolutePath();
+					    useRunSh = true;
+					}
+				    }
+				}
+
 				if ((axf_home == null) || axf_home.equals(""))
 					throw new Exception("axf home is unset");
 			} catch (Exception e) {
@@ -172,10 +237,14 @@ public class XfoObj {
 		this.executable = axf_home + separator;
 		if (System.getProperty("axf.bin") == null) {
 			if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
+			    if (!useRunSh) {
 				if (axf_ver == 0)
 					this.executable += "bin" + separator + "XSLCmd";
 				else
 					this.executable += "bin" + separator + "AHFCmd";
+			    } else {
+				this.executable += "run.sh";
+			    }
 			}
 			else if (os.contains("Windows")) {
 				if (axf_ver == 0)
