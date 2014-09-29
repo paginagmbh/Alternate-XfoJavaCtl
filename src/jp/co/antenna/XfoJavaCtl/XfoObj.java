@@ -134,7 +134,7 @@ public class XfoObj {
 
 				// check possible future versions of Formatter
 				if (axf_home == null  ||  axf_home.equals("")) {
-				    boolean isWindows = os.contains("windows");
+				    boolean isWindows = os.contains("Windows");
 				    String foundKey = "";
 				    int foundVersion = 0;
 
