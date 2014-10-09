@@ -100,7 +100,7 @@ public class XfoObj {
 	return version;
     }
 
-    private File checkForLattestUnixFormatterDirectory (String os) {
+    private File checkForLatestUnixFormatterDirectory (String os) {
 
 	// only used with unix versions
 	if (os.contains("Windows")) {
@@ -241,7 +241,7 @@ public class XfoObj {
 
 				// check some default unix paths
 				if ((axf_home == null) || axf_home.equals("")) {
-				    File foundDir = checkForLattestUnixFormatterDirectory(os);
+				    File foundDir = checkForLatestUnixFormatterDirectory(os);
 				    if (foundDir != null) {
 					axf_home = foundDir.getAbsolutePath();
 					useRunSh = true;
