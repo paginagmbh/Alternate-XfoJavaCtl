@@ -189,6 +189,13 @@ public class XfoObj {
 	    }
 	    envp.add(ldLibPath);
 
+	    // for mac os x
+	    ldLibPath = "DYLD_LIBRARY_PATH=" + absPath + "/lib";
+	    if (osEnv.containsKey("DYLD_LIBRARY_PATH")) {
+		ldLibPath += ":" + osEnv.get("DYLD_LIBRARY_PATH");
+	    }
+	    envp.add(ldLibPath);
+
 	    String start = "AHF" + foundVersion;
 
 	    if (foundDirIs64Bit) {
