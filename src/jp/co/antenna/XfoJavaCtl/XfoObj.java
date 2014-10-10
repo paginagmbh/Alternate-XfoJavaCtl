@@ -84,6 +84,8 @@ public class XfoObj {
     private ArrayList<String> userCSS;
     private XfoException lastError;
 
+    private ArrayList<String> envp = new ArrayList<String>();
+
     // Methods
 
     /* assumes keys are of type AHFxxx_HOME where 'x's are integers */
@@ -133,6 +135,7 @@ public class XfoObj {
 	File[] files = dir.listFiles();
 
 	File foundDir = null;
+	boolean foundDirIs64Bit = false;
 	int foundVersion = 0;
 
 	for (File f : files) {
@@ -162,12 +165,51 @@ public class XfoObj {
 		if (version > foundVersion) {
 		    foundVersion = version;
 		    foundDir = f;
+		    foundDirIs64Bit = bit64;
 		} else if (version == foundVersion  &&  bit64) {
 		    // preference for 64 bit versions
 		    foundDir = f;
+		    foundDirIs64Bit = bit64;
 		}
 	    }
 	}  // end f : fileList
+
+	//FIXME not here?
+	if (foundDir != null) {
+	    // also setup environment variables
+
+	    //FIXME clone environment and add?
+
+	    String absPath = foundDir.getAbsolutePath();
+
+	    String ldLibPath = "LD_LIBRARY_PATH=" + absPath + "/lib";
+	    Map<String, String> osEnv = System.getenv();
+	    if (osEnv.containsKey("LD_LIBRARY_PATH")) {
+		ldLibPath += ":" + osEnv.get("LD_LIBRARY_PATH");
+	    }
+	    envp.add(ldLibPath);
+
+	    String start = "AHF" + foundVersion;
+
+	    if (foundDirIs64Bit) {
+		start += "_64";
+	    }
+
+	    envp.add(start + "_HOME" + "=" + absPath);
+	    envp.add(start + "_LIC_PATH" + "=" + absPath + "/etc");
+	    envp.add(start + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
+	    envp.add(start + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
+	    envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
+	    envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
+	    envp.add(start + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
+
+
+	    /*
+	    for (String s : envp) {
+		System.out.println("env: " + s);
+	    }
+	    */
+	}
 
 	return foundDir;
     }
@@ -190,10 +232,6 @@ public class XfoObj {
 		String axf_home;
 		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
-
-		// fallback to using unix run.sh script if Formatter
-		// environment variables aren't found
-		boolean useRunSh = false;
 
 		Map<String, String> env = System.getenv();
 
@@ -244,7 +282,6 @@ public class XfoObj {
 				    File foundDir = checkForLatestUnixFormatterDirectory(os);
 				    if (foundDir != null) {
 					axf_home = foundDir.getAbsolutePath();
-					useRunSh = true;
 				    }
 				}
 
@@ -258,13 +295,10 @@ public class XfoObj {
 		this.executable = axf_home + separator;
 		if (System.getProperty("axf.bin") == null) {
 			if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
-			    if (!useRunSh) {
-				if (axf_ver == 0)
-					this.executable += "bin" + separator + "XSLCmd";
-				else
-					this.executable += "bin" + separator + "AHFCmd";
+			    if (axf_ver == 0) {
+				this.executable += "bin" + separator + "XSLCmd";
 			    } else {
-				this.executable += "run.sh";
+				this.executable += "bin" + separator + "AHFCmd";
 			    }
 			}
 			else if (os.contains("Windows")) {
@@ -344,7 +378,13 @@ public class XfoObj {
         try {
 	    String[] s = new String[0];
 	    try {
-		process = this.r.exec(cmdArray.toArray(s));
+		if (envp.size() > 0) {
+		    String[] e = new String[envp.size()];
+		    envp.toArray(e);
+		    process = this.r.exec(cmdArray.toArray(s), e);
+		} else {
+		    process = this.r.exec(cmdArray.toArray(s));
+		}
 	    } catch (IOException ioex) {
 		processValid = false;
 		String msg = "couldn't invoke axfo: " + ioex.getMessage();
