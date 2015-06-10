@@ -24,6 +24,19 @@ public class XfoObj {
     public int formatterMajorVersion = 0;
     public int formatterMinorVersion = 0;
     public String formatterRevision = "";
+    //FIXME also get build number string?
+
+    // hack to use STDOUT instead of -d option
+    //
+    // Java has a bug/limitation in Windows where files are not opened with
+    // FILE_SHARE_DELETE and will prevent Formatter from deleting the output
+    // file specified with '-d' if an error occurs.  Formatter will then
+    // report the fatal error as 'couldn't delete ouptut' file instead of the
+    // real cause.  Ahrts nees to keep a copy of the output file open in
+    // order to monitor the output progress.
+    public boolean useStdoutFix = false;
+
+    private String outputFilename = "";
 
     // Consts
     public static final int EST_NONE = 0;
@@ -336,6 +349,7 @@ public class XfoObj {
 	this.lastError = null;
 	this.process = null;
 	this.processValid = true;
+	this.outputFilename = "";
     }
 
     //FIXME removing since '-v' option isn't a good test to see if Formatter
@@ -370,9 +384,14 @@ public class XfoObj {
 		cmdArray.add(this.executable);
 		for (String arg : this.args.keySet()) {
 			cmdArray.add(arg);
-			if (this.args.get(arg) != null)
-				cmdArray.add(this.args.get(arg));
+			//FIXME check if Formatter >= 6.1mr2 which implements stdout corruption fix
+			if (useStdoutFix  &&  arg.equals("-o")) {
+			    cmdArray.add("@STDOUT");
+			} else if (this.args.get(arg) != null) {
+			    cmdArray.add(this.args.get(arg));
+			}
 		}
+
 		for (String css : this.userCSS) {
 			cmdArray.add("-css");
 			cmdArray.add(css);
@@ -381,6 +400,7 @@ public class XfoObj {
         //Process process;
         ErrorParser errorParser = null;
 	StreamFlusher outputFlush = null;
+	StreamCopyThread outputFileFlush = null;
         int exitCode = -1;
         try {
 	    String[] s = new String[0];
@@ -403,8 +423,13 @@ public class XfoObj {
 		InputStream StdOut = process.getInputStream();
 		errorParser = new ErrorParser(StdErr, this.messageListener);
 		errorParser.start();
-		outputFlush = new StreamFlusher(StdOut);
-		outputFlush.start();
+		if (useStdoutFix) {
+		    outputFileFlush = new StreamCopyThread(StdOut, new FileOutputStream(new File(outputFilename)));
+		    outputFileFlush.start();
+		} else {
+		    outputFlush = new StreamFlusher(StdOut);
+		    outputFlush.start();
+		}
 	    } catch (Exception e) {
 		String msg = "Exception getting streams: " + e.getMessage();
 		System.err.println(msg);
@@ -426,6 +451,10 @@ public class XfoObj {
 			outputFlush.join();
 			//System.out.println("interrupting flush thread");
 		    }
+		    if (outputFileFlush != null) {
+			outputFileFlush.interrupt();
+			outputFileFlush.join();
+		    }
 		    if (errorParser != null) {
 			errorParser.interrupt();
 			errorParser.join();
@@ -446,6 +475,18 @@ public class XfoObj {
 	    System.err.println(msg);
 	    throw new XfoException(4, 0, msg);
 	    */
+	}
+
+	if (outputFileFlush != null) {
+	    try {
+		outputFileFlush.join();
+	    } catch (InterruptedException e) {
+		String msg = "Exception output file flush: " + e.getMessage();
+		System.err.println(msg);
+		Thread.interrupted();
+		throw new InterruptedException();
+		//throw new XfoException(4, 0, msg);
+	    }
 	}
 
 	if (outputFlush != null) {
@@ -794,11 +835,14 @@ public class XfoObj {
         // Set the path...
         String opt = "-o";
         if (path != null && !path.equals("")) {
-            if (this.args.containsKey(opt))
+	    outputFilename = path;
+            if (this.args.containsKey(opt)) {
                 this.args.remove(opt);
-            this.args.put(opt, path);
+	    }
+	    this.args.put(opt, path);
         }
         else {
+	    outputFilename = "";
             this.args.remove(opt);
         }
     }
@@ -1111,6 +1155,7 @@ class StreamCopyThread extends Thread {
 	}
 }
 
+
 class StreamFlusher extends Thread {
     private InputStream stream;
 
@@ -1132,6 +1177,7 @@ class StreamFlusher extends Thread {
     }
 
 }
+
 
 class ErrorParser extends Thread {
     private InputStream ErrorStream;
