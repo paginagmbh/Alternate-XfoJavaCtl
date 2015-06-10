@@ -26,11 +26,11 @@ public class XfoObj {
     public String formatterRevision = "";
     //FIXME also get build number string?
 
-    // hack to use STDOUT instead of -d option
+    // hack to use STDOUT instead of -o option
     //
     // Java has a bug/limitation in Windows where files are not opened with
     // FILE_SHARE_DELETE and will prevent Formatter from deleting the output
-    // file specified with '-d' if an error occurs.  Formatter will then
+    // file specified with '-o' if an error occurs.  Formatter will then
     // report the fatal error as 'couldn't delete ouptut' file instead of the
     // real cause.  Ahrts nees to keep a copy of the output file open in
     // order to monitor the output progress.
