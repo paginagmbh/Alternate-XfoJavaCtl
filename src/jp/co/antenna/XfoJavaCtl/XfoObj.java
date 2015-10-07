@@ -34,6 +34,10 @@ public class XfoObj {
     // report the fatal error as 'couldn't delete ouptut' file instead of the
     // real cause.  Ahrts nees to keep a copy of the output file open in
     // order to monitor the output progress.
+    //
+    // Note that with the use of STDOUT the final output file will only be
+    // written when formatting is complete.  It will not be possible to read
+    // the output as it's being written in order to create progress updates.
     public boolean useStdoutFix = false;
 
     private String outputFilename = "";
