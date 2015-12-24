@@ -51,6 +51,8 @@ We are using the meta-target 'all' for configurability.
         <javac srcdir="${src}"
                 destdir="${build}"
                 includeantruntime="false"
+		target="1.6"
+		source="1.6"
                 debug="${debug}"
                 debuglevel="${debuglevel}">
             <!-- Include these libraries in the classpath. -->
