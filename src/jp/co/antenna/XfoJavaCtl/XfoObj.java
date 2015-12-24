@@ -592,6 +592,11 @@ public class XfoObj {
 		cmdArray.add("-o");
 		cmdArray.add("@STDOUT");
 		cmdArray.add("-p");
+		if (outDevice != null  &&  outDevice.length() != 0) {
+		    cmdArray.add(outDevice);
+		} else {
+		    cmdArray.add("@PDF");
+		}
 		cmdArray.add(outDevice);
 
 		//Process process;
