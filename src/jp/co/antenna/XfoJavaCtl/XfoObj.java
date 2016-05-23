@@ -1433,19 +1433,14 @@ class ErrorParser extends Thread {
 
 		if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                     if (line.contains("Error Level")) {
-			//FIXME maybe debug option to print these
-			System.err.println(line);
                         try {
                             int ErrorLevel = Integer.parseInt(line.substring(line.length() - 1, line.length()));
                             line = reader.readLine();
-			    System.err.println(line);
                             int ErrorCode = Integer.parseInt(line.split(" ")[line.split(" ").length - 2]);
                             line = reader.readLine();
-			    System.err.println(line);
                             String ErrorMessage = line.split(" ", 3)[2];
                             line = reader.readLine();
-			    System.err.println(line);
-			    //FIXME redundant check for startsWith()
+                            //FIXME redundant check for startsWith()
                             if (line.startsWith("XSLCmd :") || line.startsWith("AHFCmd :")) {
                                 ErrorMessage += "\n" + line.split(" ", 3)[2];
                             }
