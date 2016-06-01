@@ -241,6 +241,13 @@ public class XfoObj {
 				//System.out.println("path before: " + path);
 				env.put("Path", axf_home + ";" + path);
 				//System.out.println("path: " + env.get("Path"));
+			    } else if (os.equals("Mac OS X")) {
+				String ldpath = env.get("DYLD_LIBRARY_PATH");
+
+				if (ldpath == null) {
+				    ldpath = "";
+				}
+				env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 			    } else {
 				String ldpath = env.get("LD_LIBRARY_PATH");
 
