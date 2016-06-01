@@ -669,38 +669,44 @@ public class XfoObj {
 		try {
 			String[] s = new String[0];
 			try {
-			    //FIXME envp option
+			    if (envp.size() > 0) {
+				String[] e = new String[envp.size()];
+				envp.toArray(e);
+				//FIXME processbuilder
+				process = this.r.exec(cmdArray.toArray(s), e);
+			    } else {
+				//process = this.r.exec(cmdArray.toArray(s));
+				pb = new ProcessBuilder(cmdArray.toArray(s));
+				Map<String, String> env = pb.environment();
 
-			    //process = this.r.exec(cmdArray.toArray(s));
-			    pb = new ProcessBuilder(cmdArray.toArray(s));
-			    Map<String, String> env = pb.environment();
+				if (preferredHome != null) {
+				    if (isWindows) {
+					String path = env.get("Path");
 
-			    if (preferredHome != null) {
-				if (isWindows) {
-				    String path = env.get("Path");
+					if (path == null) {
+					    path = "";
+					}
+					env.put("Path", axf_home + ";" + path);
+				    } else if (os.equals("Mac OS X")) {
+					String ldpath = env.get("DYLD_LIBRARY_PATH");
 
-				    if (path == null) {
-					path = "";
+					if (ldpath == null) {
+					    ldpath = "";
+					}
+					env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+				    } else {
+					String ldpath = env.get("LD_LIBRARY_PATH");
+
+					if (ldpath == null) {
+					    ldpath = "";
+					}
+					env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 				    }
-				    env.put("Path", axf_home + ";" + path);
-				} else if (os.equals("Mac OS X")) {
-				    String ldpath = env.get("DYLD_LIBRARY_PATH");
-
-				    if (ldpath == null) {
-					ldpath = "";
-				    }
-				    env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
-				} else {
-				    String ldpath = env.get("LD_LIBRARY_PATH");
-
-				    if (ldpath == null) {
-					ldpath = "";
-				    }
-				    env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 				}
+
+				process = pb.start();
 			    }
 
-			    process = pb.start();
 			} catch (IOException ioex) {
 			    String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
 			    System.err.println(msg);
