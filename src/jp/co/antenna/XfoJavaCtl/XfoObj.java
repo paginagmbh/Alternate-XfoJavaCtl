@@ -95,12 +95,16 @@ public class XfoObj {
     public static final int S_PDF_VERSION_X_3_2003 = 106;
 
     // Attributes
+    private String preferredHome;
     private String executable;
     private Runtime r;
     private MessageListener messageListener;
     private LinkedHashMap<String, String> args;
     private ArrayList<String> userCSS;
     private XfoException lastError;
+    private String os;
+    private boolean isWindows;
+    private String axf_home = null;
 
     private ArrayList<String> envp = new ArrayList<String>();
 
@@ -242,11 +246,19 @@ public class XfoObj {
     /**
      * Create the instance of XfoObj, and initialize it.
      *
+     * @param preferredHome  Use a specific version of Formatter.  This is
+     * specified as a Formatter home environment variable (ex: AHF63_HOME,
+     * AHF62_64_HOME, etc.) and needs to already be defined in the user's
+     * environment.  In addition to using the executable found with this
+     * variable the Formatter process that is launched alters the PATH and
+     * [DY]LD_LIBRARY_PATH settings to match the specified environment.
+     *
      * @throws XfoException
      */
-    public XfoObj () throws XfoException {
+    public XfoObj (String preferredHome) throws XfoException {
         // Check EVs and test if XslCmd.exe exists.
-		String os;
+	this.preferredHome = preferredHome;
+
 		try {
 			os = System.getProperty("os.name");
 			if ((os == null) || os.equals(""))
@@ -254,7 +266,8 @@ public class XfoObj {
 		} catch (Exception e) {
 			throw new XfoException(4, 0, "Could not determine OS");
 		}
-		String axf_home;
+
+		// ahrts
 		axf_home = System.getProperty("axf.home");
 		int axf_ver = 1;
 
@@ -262,6 +275,14 @@ public class XfoObj {
 
 		if ((axf_home == null) || axf_home.equals("")) {
 			try {
+
+			    if (preferredHome != null) {
+				if (env.containsKey(preferredHome)) {
+				    axf_home = env.get(preferredHome);
+				}
+			    }
+
+			    if (axf_home == null  ||  axf_home.equals("")) {
 				for (String key: AH_HOME_ENV) {
 					if (env.containsKey(key)) {
 						axf_home = env.get(key);
@@ -271,6 +292,7 @@ public class XfoObj {
 						break;
 					}
 				}
+			    }
 
 				// check possible future versions of Formatter
 				if (axf_home == null  ||  axf_home.equals("")) {
@@ -341,7 +363,11 @@ public class XfoObj {
         // setup attributes
         this.clear();
     }
-    
+
+    public XfoObj () throws XfoException {
+	this(null);
+    }
+
     /**
      * Cleanup (initialize) XSL Formatter engine.
      */
@@ -403,6 +429,7 @@ public class XfoObj {
 		}
         // Run Formatter with Runtime.exec()
         //Process process;
+	ProcessBuilder pb;
         ErrorParser errorParser = null;
 	StreamFlusher outputFlush = null;
 	StreamCopyThread outputFileFlush = null;
@@ -413,9 +440,40 @@ public class XfoObj {
 		if (envp.size() > 0) {
 		    String[] e = new String[envp.size()];
 		    envp.toArray(e);
+		    //FIXME processbuilder
 		    process = this.r.exec(cmdArray.toArray(s), e);
 		} else {
-		    process = this.r.exec(cmdArray.toArray(s));
+		    //process = this.r.exec(cmdArray.toArray(s));
+
+		    pb = new ProcessBuilder(cmdArray.toArray(s));
+		    Map<String, String> env = pb.environment();
+
+		    if (preferredHome != null) {
+			if (isWindows) {
+			    String path = env.get("Path");
+
+			    if (path == null) {
+				path = "";
+			    }
+			    env.put("Path", axf_home + ";" + path);
+			} else if (os.equals("Mac OS X")) {
+			    String ldpath = env.get("DYLD_LIBRARY_PATH");
+
+			    if (ldpath == null) {
+				ldpath = "";
+			    }
+			    env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+			} else {
+			    String ldpath = env.get("LD_LIBRARY_PATH");
+
+			    if (ldpath == null) {
+				ldpath = "";
+			    }
+			    env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+			}
+
+			process = pb.start();
+		    }
 		}
 	    } catch (IOException ioex) {
 		processValid = false;
@@ -601,6 +659,7 @@ public class XfoObj {
 		cmdArray.add(outDevice);
 
 		//Process process;
+		ProcessBuilder pb;
 		ErrorParser errorParser = null;
 		StreamCopyThread scInput = null;
 		StreamCopyThread scOutput = null;
@@ -610,7 +669,38 @@ public class XfoObj {
 		try {
 			String[] s = new String[0];
 			try {
-			    process = this.r.exec(cmdArray.toArray(s));
+			    //FIXME envp option
+
+			    //process = this.r.exec(cmdArray.toArray(s));
+			    pb = new ProcessBuilder(cmdArray.toArray(s));
+			    Map<String, String> env = pb.environment();
+
+			    if (preferredHome != null) {
+				if (isWindows) {
+				    String path = env.get("Path");
+
+				    if (path == null) {
+					path = "";
+				    }
+				    env.put("Path", axf_home + ";" + path);
+				} else if (os.equals("Mac OS X")) {
+				    String ldpath = env.get("DYLD_LIBRARY_PATH");
+
+				    if (ldpath == null) {
+					ldpath = "";
+				    }
+				    env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+				} else {
+				    String ldpath = env.get("LD_LIBRARY_PATH");
+
+				    if (ldpath == null) {
+					ldpath = "";
+				    }
+				    env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+				}
+			    }
+
+			    process = pb.start();
 			} catch (IOException ioex) {
 			    String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
 			    System.err.println(msg);
