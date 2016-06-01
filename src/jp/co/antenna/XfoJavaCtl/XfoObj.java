@@ -345,13 +345,49 @@ public class XfoObj {
 		    cmdArray.add("@PDF");
 		}
 
+		ProcessBuilder pb;
 		Process process;
 		ErrorParser errorParser = null;
 		int exitCode = -1;
 
 		try {
 			String[] s = new String[0];
-			process = this.r.exec(cmdArray.toArray(s));
+			//process = this.r.exec(cmdArray.toArray(s));
+
+			pb = new ProcessBuilder(cmdArray.toArray(s));
+			Map<String, String> env = pb.environment();
+
+			if (preferredHome != null) {
+			    if (isWindows) {
+				String path = env.get("Path");
+
+				if (path == null) {
+				    path = "";
+				}
+
+				//System.out.println("path before: " + path);
+				env.put("Path", axf_home + ";" + path);
+				//System.out.println("path: " + env.get("Path"));
+			    } else if (os.equals("Mac OS X")) {
+				String ldpath = env.get("DYLD_LIBRARY_PATH");
+
+				if (ldpath == null) {
+				    ldpath = "";
+				}
+				env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+			    } else {
+				String ldpath = env.get("LD_LIBRARY_PATH");
+
+				if (ldpath == null) {
+				    ldpath = "";
+				}
+				env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
+				//System.out.println("ld path: " + env.get("LD_LIBRARY_PATH"));
+			    }
+			}
+
+			process = pb.start();
+
 			try {
 				InputStream StdErr = process.getErrorStream();
 				errorParser = new ErrorParser(StdErr, this.messageListener);
