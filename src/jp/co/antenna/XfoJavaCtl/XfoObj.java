@@ -471,9 +471,9 @@ public class XfoObj {
 			    }
 			    env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 			}
-
-			process = pb.start();
 		    }
+
+		    process = pb.start();
 		}
 	    } catch (IOException ioex) {
 		processValid = false;
@@ -706,7 +706,6 @@ public class XfoObj {
 
 				process = pb.start();
 			    }
-
 			} catch (IOException ioex) {
 			    String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
 			    System.err.println(msg);
