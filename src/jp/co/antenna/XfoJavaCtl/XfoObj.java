@@ -248,20 +248,29 @@ public class XfoObj {
 	//FIXME Windows
 
 	String absPath = specifiedFormatterInstallation;
-
-	String ldLibPath = "LD_LIBRARY_PATH=" + absPath + "/lib";
 	Map<String, String> osEnv = System.getenv();
-	if (osEnv.containsKey("LD_LIBRARY_PATH")) {
-	    ldLibPath += ":" + osEnv.get("LD_LIBRARY_PATH");
-	}
-	envp.add(ldLibPath);
 
-	// for mac os x
-	ldLibPath = "DYLD_LIBRARY_PATH=" + absPath + "/lib";
-	if (osEnv.containsKey("DYLD_LIBRARY_PATH")) {
-	    ldLibPath += ":" + osEnv.get("DYLD_LIBRARY_PATH");
+	if (isWindows) {
+	    String path = "Path=" + absPath;
+	    if (osEnv.containsKey("Path")) {
+		path += ";" + osEnv.get("Path");  //FIXME File.pathSeparator
+	    }
+	    envp.add(path);
+	} else {
+	    String ldLibPath = "LD_LIBRARY_PATH=" + absPath + "/lib";
+
+	    if (osEnv.containsKey("LD_LIBRARY_PATH")) {
+		ldLibPath += ":" + osEnv.get("LD_LIBRARY_PATH");
+	    }
+	    envp.add(ldLibPath);
+
+	    // for mac os x
+	    ldLibPath = "DYLD_LIBRARY_PATH=" + absPath + "/lib";
+	    if (osEnv.containsKey("DYLD_LIBRARY_PATH")) {
+		ldLibPath += ":" + osEnv.get("DYLD_LIBRARY_PATH");
+	    }
+	    envp.add(ldLibPath);
 	}
-	envp.add(ldLibPath);
 
 	// needs to be *_HOME
 	if (preferredHome.length() < 6) {
@@ -271,12 +280,12 @@ public class XfoObj {
 	String start = preferredHome.substring(0, preferredHome.length() - 5);
 
 	envp.add(start + "_HOME" + "=" + absPath);
-	envp.add(start + "_LIC_PATH" + "=" + absPath + "/etc");
-	envp.add(start + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
-	envp.add(start + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
-	envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
-	envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
-	envp.add(start + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
+	envp.add(start + "_LIC_PATH" + "=" + absPath + File.separator + "etc");
+	envp.add(start + "_HYPDIC_PATH" + "=" + absPath + File.separator + "etc" + File.separator + "hyphenation");
+	envp.add(start + "_DMC_TBLPATH" + "=" + absPath + File.separator + "sdata" + File.separator + "base2");
+	envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + File.separator + "etc" + File.separator + "html.css");
+	envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + File.separator + "etc" + File.separator + "font-config.xml");
+	envp.add(start + "_BROKENIMG" + "=" + absPath + File.separator + "samples" + File.separator + "Broken.png");
     }
 
     /**
