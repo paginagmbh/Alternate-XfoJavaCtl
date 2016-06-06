@@ -292,7 +292,7 @@ public class XfoObj {
      * @param formatterInstallation  Location of base directory of the
      * Formatter installation.  This requires 'preferredHome' to also be set
      * and uses 'preferredHome' to set environment variables for that
-     * version.
+     * version.  This should be specified as an absolute path.
      *
      * @throws XfoException
      */
