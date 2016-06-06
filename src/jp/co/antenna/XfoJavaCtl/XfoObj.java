@@ -96,6 +96,7 @@ public class XfoObj {
 
     // Attributes
     private String preferredHome;
+    private String specifiedFormatterInstallation;
     private String executable;
     private Runtime r;
     private MessageListener messageListener;
@@ -243,6 +244,39 @@ public class XfoObj {
 	return foundDir;
     }
 
+    private void setCustomFormatterLocationEnvironmentVariables () throws XfoException {
+	String absPath = specifiedFormatterInstallation;
+
+	String ldLibPath = "LD_LIBRARY_PATH=" + absPath + "/lib";
+	Map<String, String> osEnv = System.getenv();
+	if (osEnv.containsKey("LD_LIBRARY_PATH")) {
+	    ldLibPath += ":" + osEnv.get("LD_LIBRARY_PATH");
+	}
+	envp.add(ldLibPath);
+
+	// for mac os x
+	ldLibPath = "DYLD_LIBRARY_PATH=" + absPath + "/lib";
+	if (osEnv.containsKey("DYLD_LIBRARY_PATH")) {
+	    ldLibPath += ":" + osEnv.get("DYLD_LIBRARY_PATH");
+	}
+	envp.add(ldLibPath);
+
+	// needs to be *_HOME
+	if (preferredHome.length() < 6) {
+	    throw new XfoException(4, 0, "invalid 'preferredHome' specified");
+	}
+
+	String start = preferredHome.substring(0, preferredHome.length() - 5);
+
+	envp.add(start + "_HOME" + "=" + absPath);
+	envp.add(start + "_LIC_PATH" + "=" + absPath + "/etc");
+	envp.add(start + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
+	envp.add(start + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
+	envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
+	envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
+	envp.add(start + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
+    }
+
     /**
      * Create the instance of XfoObj, and initialize it.
      *
@@ -253,12 +287,17 @@ public class XfoObj {
      * variable the Formatter process that is launched alters the PATH and
      * [DY]LD_LIBRARY_PATH settings to match the specified environment.
      *
+     * @param formatterInstallation  Location of base directory of the
+     * Formatter installation.  This requires 'preferredHome' to also be set
+     * and uses 'preferredHome' to set environment variables for that
+     * version.
+     *
      * @throws XfoException
      */
-    public XfoObj (String preferredHome) throws XfoException {
+    public XfoObj (String preferredHome, String specifiedFormatterInstallation) throws XfoException {
         // Check EVs and test if XslCmd.exe exists.
 	this.preferredHome = preferredHome;
-
+	this.specifiedFormatterInstallation = specifiedFormatterInstallation;
 		try {
 			os = System.getProperty("os.name");
 			if ((os == null) || os.equals(""))
@@ -276,10 +315,15 @@ public class XfoObj {
 		if ((axf_home == null) || axf_home.equals("")) {
 			try {
 
-			    if (preferredHome != null) {
+			    if (preferredHome != null  &&  specifiedFormatterInstallation == null) {
 				if (env.containsKey(preferredHome)) {
 				    axf_home = env.get(preferredHome);
 				}
+				// else fall back to other checks
+			    } else if (specifiedFormatterInstallation != null) {
+				//System.out.println("specified: " + specifiedFormatterInstallation);
+				axf_home = specifiedFormatterInstallation;
+				setCustomFormatterLocationEnvironmentVariables();
 			    }
 
 			    if (axf_home == null  ||  axf_home.equals("")) {
@@ -364,8 +408,12 @@ public class XfoObj {
         this.clear();
     }
 
+    public XfoObj (String preferredHome) throws XfoException {
+	this(preferredHome, null);
+    }
+
     public XfoObj () throws XfoException {
-	this(null);
+	this(null, null);
     }
 
     /**
