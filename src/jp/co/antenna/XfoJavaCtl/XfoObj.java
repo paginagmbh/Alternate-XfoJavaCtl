@@ -245,6 +245,8 @@ public class XfoObj {
     }
 
     private void setCustomFormatterLocationEnvironmentVariables () throws XfoException {
+	//FIXME Windows
+
 	String absPath = specifiedFormatterInstallation;
 
 	String ldLibPath = "LD_LIBRARY_PATH=" + absPath + "/lib";
@@ -298,112 +300,112 @@ public class XfoObj {
         // Check EVs and test if XslCmd.exe exists.
 	this.preferredHome = preferredHome;
 	this.specifiedFormatterInstallation = specifiedFormatterInstallation;
-		try {
-			os = System.getProperty("os.name");
-			if ((os == null) || os.equals(""))
-				throw new Exception();
-		} catch (Exception e) {
-			throw new XfoException(4, 0, "Could not determine OS");
+	try {
+	    os = System.getProperty("os.name");
+	    if ((os == null) || os.equals(""))
+		throw new Exception();
+	} catch (Exception e) {
+	    throw new XfoException(4, 0, "Could not determine OS");
+	}
+
+	// ahrts
+	axf_home = System.getProperty("axf.home");
+	int axf_ver = 1;
+
+	Map<String, String> env = System.getenv();
+
+	if ((axf_home == null) || axf_home.equals("")) {
+	    try {
+
+		if (preferredHome != null  &&  specifiedFormatterInstallation == null) {
+		    if (env.containsKey(preferredHome)) {
+			axf_home = env.get(preferredHome);
+		    }
+		    // else fall back to other checks
+		} else if (specifiedFormatterInstallation != null) {
+		    //System.out.println("specified: " + specifiedFormatterInstallation);
+		    axf_home = specifiedFormatterInstallation;
+		    setCustomFormatterLocationEnvironmentVariables();
 		}
 
-		// ahrts
-		axf_home = System.getProperty("axf.home");
-		int axf_ver = 1;
+		if (axf_home == null  ||  axf_home.equals("")) {
+		    for (String key: AH_HOME_ENV) {
+			if (env.containsKey(key)) {
+			    axf_home = env.get(key);
+			    if (AH_VER_MAP.containsKey(key)) {
+				axf_ver = AH_VER_MAP.get(key).intValue();
+			    }
+			    break;
+			}
+		    }
+		}
 
-		Map<String, String> env = System.getenv();
+		// check possible future versions of Formatter
+		if (axf_home == null  ||  axf_home.equals("")) {
+		    boolean isWindows = os.contains("Windows");
+		    String foundKey = "";
+		    int foundVersion = 0;
 
+		    //List<String> foundKeys = new List<String>();
+
+		    for (String key: env.keySet()) {
+			String ukey;
+			if (isWindows) {
+			    ukey = key.toUpperCase();
+			} else {
+			    ukey = key;
+			}
+
+			if (ukey.startsWith("AHF")  &&  ukey.endsWith("_HOME")) {
+			    int version = parseFormatterVersionFromKey(ukey);
+			    if (version > foundVersion) {
+				foundVersion = version;
+				foundKey = ukey;
+			    }
+			}
+		    } // end for (String key: ...
+
+		    if (!foundKey.equals("")) {
+			axf_home = env.get(foundKey);
+		    }
+		}
+
+		// check some default unix paths
 		if ((axf_home == null) || axf_home.equals("")) {
-			try {
-
-			    if (preferredHome != null  &&  specifiedFormatterInstallation == null) {
-				if (env.containsKey(preferredHome)) {
-				    axf_home = env.get(preferredHome);
-				}
-				// else fall back to other checks
-			    } else if (specifiedFormatterInstallation != null) {
-				//System.out.println("specified: " + specifiedFormatterInstallation);
-				axf_home = specifiedFormatterInstallation;
-				setCustomFormatterLocationEnvironmentVariables();
-			    }
-
-			    if (axf_home == null  ||  axf_home.equals("")) {
-				for (String key: AH_HOME_ENV) {
-					if (env.containsKey(key)) {
-						axf_home = env.get(key);
-						if (AH_VER_MAP.containsKey(key)) {
-							axf_ver = AH_VER_MAP.get(key).intValue();
-						}
-						break;
-					}
-				}
-			    }
-
-				// check possible future versions of Formatter
-				if (axf_home == null  ||  axf_home.equals("")) {
-				    boolean isWindows = os.contains("Windows");
-				    String foundKey = "";
-				    int foundVersion = 0;
-
-				    //List<String> foundKeys = new List<String>();
-
-				    for (String key: env.keySet()) {
-					String ukey;
-					if (isWindows) {
-					    ukey = key.toUpperCase();
-					} else {
-					    ukey = key;
-					}
-
-					if (ukey.startsWith("AHF")  &&  ukey.endsWith("_HOME")) {
-					    int version = parseFormatterVersionFromKey(ukey);
-					    if (version > foundVersion) {
-						foundVersion = version;
-						foundKey = ukey;
-					    }
-					}
-				    } // end for (String key: ...
-
-				    if (!foundKey.equals("")) {
-					axf_home = env.get(foundKey);
-				    }
-				}
-
-				// check some default unix paths
-				if ((axf_home == null) || axf_home.equals("")) {
-				    File foundDir = checkForLatestUnixFormatterDirectory(os);
-				    if (foundDir != null) {
-					axf_home = foundDir.getAbsolutePath();
-				    }
-				}
-
-				if ((axf_home == null) || axf_home.equals(""))
-					throw new Exception("axf home is unset");
-			} catch (Exception e) {
-				throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
-			}
+		    File foundDir = checkForLatestUnixFormatterDirectory(os);
+		    if (foundDir != null) {
+			axf_home = foundDir.getAbsolutePath();
+		    }
 		}
-		String separator = System.getProperty("file.separator");
-		this.executable = axf_home + separator;
-		if (System.getProperty("axf.bin") == null) {
-			if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
-			    if (axf_ver == 0) {
-				this.executable += "bin" + separator + "XSLCmd";
-			    } else {
-				this.executable += "bin" + separator + "AHFCmd";
-			    }
-			}
-			else if (os.contains("Windows")) {
-				if (axf_ver == 0)
-					this.executable += "XSLCmd.exe";
-				else
-					this.executable += "AHFCmd.exe";
-			}
-			else
-				throw new XfoException(4, 2, "Unsupported OS: " + os);
+
+		if ((axf_home == null) || axf_home.equals(""))
+		    throw new Exception("axf home is unset");
+	    } catch (Exception e) {
+		throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
+	    }
+	}
+	String separator = System.getProperty("file.separator");
+	this.executable = axf_home + separator;
+	if (System.getProperty("axf.bin") == null) {
+	    if (os.equals("Linux") || os.equals("SunOS") || os.equals("AIX") || os.equals("Mac OS X")) {
+		if (axf_ver == 0) {
+		    this.executable += "bin" + separator + "XSLCmd";
+		} else {
+		    this.executable += "bin" + separator + "AHFCmd";
 		}
-		else {
-			this.executable += System.getProperty("axf.bin");
-		}
+	    }
+	    else if (os.contains("Windows")) {
+		if (axf_ver == 0)
+		    this.executable += "XSLCmd.exe";
+		else
+		    this.executable += "AHFCmd.exe";
+	    }
+	    else
+		throw new XfoException(4, 2, "Unsupported OS: " + os);
+	}
+	else {
+	    this.executable += System.getProperty("axf.bin");
+	}
         // setup attributes
         this.clear();
     }
