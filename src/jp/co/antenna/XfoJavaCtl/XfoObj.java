@@ -273,7 +273,7 @@ public class XfoObj {
 	}
 
 	// needs to be *_HOME
-	if (preferredHome.length() < 6) {
+	if (preferredHome == null  ||  preferredHome.length() < 6) {
 	    throw new XfoException(4, 0, "invalid 'preferredHome' specified");
 	}
 
@@ -389,6 +389,8 @@ public class XfoObj {
 
 		if ((axf_home == null) || axf_home.equals(""))
 		    throw new Exception("axf home is unset");
+	    } catch (XfoException e) {
+		throw e;
 	    } catch (Exception e) {
 		throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 	    }
