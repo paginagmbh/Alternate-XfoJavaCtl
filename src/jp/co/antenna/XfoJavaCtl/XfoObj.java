@@ -125,7 +125,7 @@ public class XfoObj {
 	return version;
     }
 
-    private File checkForLatestUnixFormatterDirectory (String os) {
+    private File checkForLatestUnixFormatterDirectory (String os, String checkBaseDir) {
 
 	// only used with unix versions
 	if (os.contains("Windows")) {
@@ -153,6 +153,12 @@ public class XfoObj {
 	    dirNamePattern = "AHFormatterV";
 	}
 
+	if (checkBaseDir != null) {
+	    File f;
+
+	    f = new File(checkBaseDir);
+	    baseDir = f.getParentFile().getAbsolutePath();
+	}
 
 	File dir = new File(baseDir);
 	File[] files = dir.listFiles();
@@ -273,7 +279,19 @@ public class XfoObj {
 	}
 
 	// needs to be *_HOME
-	if (preferredHome == null  ||  preferredHome.length() < 6) {
+
+	if (preferredHome == null) {
+	    //FIXME Windows
+	    File f = checkForLatestUnixFormatterDirectory(os, specifiedFormatterInstallation);
+	    if (f == null) {
+		throw new XfoException(4, 0, "Formatter version couldn't be determined from specified installation");
+	    }
+
+	    // environment variables set in checkFor...() call
+	    return;
+	}
+
+	if (preferredHome.length() < 6) {
 	    throw new XfoException(4, 0, "invalid 'preferredHome' specified");
 	}
 
@@ -299,9 +317,17 @@ public class XfoObj {
      * [DY]LD_LIBRARY_PATH settings to match the specified environment.
      *
      * @param formatterInstallation  Location of base directory of the
-     * Formatter installation.  This requires 'preferredHome' to also be set
-     * and uses 'preferredHome' to set environment variables for that
-     * version.  This should be specified as an absolute path.
+     * Formatter installation.  This should be specified as an absolute path.
+     * 'preferredHome' is used to set the appropriate environment variables
+     * for that version.
+     *
+     * If 'preferredHome' is set to null the Unix versions will try to parse
+     * the Formatter version from the directory specified with
+     * 'formatterInstallation'.  The name of the directory should be the
+     * same as the name used for default Formatter installations.  For
+     * example, the 32-bit Linux version installs into /usr/AHFormatterV63.
+     * A valid 'formatterInstallation' directory would be
+     * /share/data/AHFormatterV63.
      *
      * @throws XfoException
      */
@@ -381,7 +407,7 @@ public class XfoObj {
 
 		// check some default unix paths
 		if ((axf_home == null) || axf_home.equals("")) {
-		    File foundDir = checkForLatestUnixFormatterDirectory(os);
+		    File foundDir = checkForLatestUnixFormatterDirectory(os, null);
 		    if (foundDir != null) {
 			axf_home = foundDir.getAbsolutePath();
 		    }
