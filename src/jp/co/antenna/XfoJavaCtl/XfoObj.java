@@ -173,6 +173,13 @@ public class XfoObj {
 
 	    //System.out.println("file: " + f.getName());
 	    if (name.startsWith(dirNamePattern)) {
+
+	    // stop here and do next iteration if current AHF dir
+		// is not equal with the provided checkBaseDir
+		if(checkBaseDir != null && !f.getAbsolutePath().equals(checkBaseDir)) {
+			continue;
+		}
+
 		String versionString;
 		int version = 0;
 
