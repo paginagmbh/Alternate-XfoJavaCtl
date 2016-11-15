@@ -77,8 +77,11 @@ public class XfoObj {
     /* assumes keys are of type AHFxxx_HOME where 'x's are integers */
     int parseFormatterVersionFromKey (String key) {
 	String sub = key.substring(3, key.length() - "_HOME".length());
-	int version = 0;
+	if (sub.endsWith("_64")) {
+	    sub = sub.substring(0, sub.length() - "_64".length());
+	}
 
+	int version = 0;
 	try {
 	    version = Integer.parseInt(sub);
 	} catch (NumberFormatException e) {
