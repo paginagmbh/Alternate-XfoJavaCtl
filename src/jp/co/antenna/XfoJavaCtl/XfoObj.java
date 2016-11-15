@@ -328,17 +328,17 @@ public class XfoObj {
      * variable the Formatter process that is launched alters the PATH and
      * [DY]LD_LIBRARY_PATH settings to match the specified environment.
      *
-     * @param formatterInstallation  Location of base directory of the
+     * @param specifiedFormatterInstallation  Location of base directory of the
      * Formatter installation.  This should be specified as an absolute path.
      * 'preferredHome' is used to set the appropriate environment variables
      * for that version.
      *
      * If 'preferredHome' is set to null the Unix versions will try to parse
      * the Formatter version from the directory specified with
-     * 'formatterInstallation'.  The name of the directory should be the
+     * 'specifiedFormatterInstallation'.  The name of the directory should be the
      * same as the name used for default Formatter installations.  For
      * example, the 32-bit Linux version installs into /usr/AHFormatterV63.
-     * A valid 'formatterInstallation' directory would be
+     * A valid 'specifiedFormatterInstallation' directory would be
      * /share/data/AHFormatterV63.
      *
      * @throws XfoException
