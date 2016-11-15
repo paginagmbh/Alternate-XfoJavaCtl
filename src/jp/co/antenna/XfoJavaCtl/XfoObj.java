@@ -47,6 +47,7 @@ public class XfoObj {
     public static final int EST_STDOUT = 1;
     public static final int EST_STDERR = 2;
     private static final String[] AH_HOME_ENV = {
+        "AHF64_64_HOME", "AHF64_HOME",
 	"AHF63_64_HOME", "AHF63_HOME",
 	"AHF62_64_HOME", "AHF62_HOME",
         "AHF61_64_HOME", "AHF61_HOME",
@@ -93,6 +94,7 @@ public class XfoObj {
     public static final int S_PDF_VERSION_X_2_2003 = 105;
     public static final int S_PDF_VERSION_X_3_2002 = 103;
     public static final int S_PDF_VERSION_X_3_2003 = 106;
+    public static final int S_PDF_VERSION_X_4_2008 = 107;
 
     // Attributes
     private String preferredHome;
@@ -1225,6 +1227,10 @@ public class XfoObj {
             case S_PDF_VERSION_X_3_2003:
                 version = "PDF/X-3:2003";
                 break;
+            case S_PDF_VERSION_X_4_2008:
+                version = "PDF/X-4:2008";
+                break;
+
         }
         if (version != null)
             this.args.put(opt, version);
