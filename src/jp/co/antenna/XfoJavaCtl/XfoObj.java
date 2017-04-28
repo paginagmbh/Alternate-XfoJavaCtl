@@ -282,7 +282,7 @@ public class XfoObj {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 		throw this.lastError;
             } else {
-                throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode);
+                throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + ". " + errorParser.UnknownErrorMessage);
             }
         }
     }
@@ -417,7 +417,7 @@ public class XfoObj {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
 				throw this.lastError;
 			} else {
-				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode);
+				throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode + ". " + errorParser.UnknownErrorMessage);
 			}
 		}
     }
@@ -881,7 +881,8 @@ class ErrorParser extends Thread {
     public int LastErrorLevel;
     public int LastErrorCode;
     public String LastErrorMessage;
-    
+    public String UnknownErrorMessage = "";
+
     public ErrorParser (InputStream ErrorStream, MessageListener listener) {
         this.ErrorStream = ErrorStream;
         this.listener = listener;
@@ -933,6 +934,8 @@ class ErrorParser extends Thread {
 			this.LastErrorMessage = ErrorMessage;
 			if (this.listener != null)
 			    this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
+		} else {
+		    UnknownErrorMessage += line + "\n";
 		}
 
                 line = reader.readLine();
