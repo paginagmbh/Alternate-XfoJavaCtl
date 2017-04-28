@@ -272,6 +272,7 @@ public class XfoObj {
 				errorParser.start();
 			} catch (Exception e) {}
             exitCode = process.waitFor();
+	    errorParser.join();
         } catch (Exception e) {
 	    e.printStackTrace();
 	}
@@ -279,7 +280,7 @@ public class XfoObj {
         if (exitCode != 0) {
             if (errorParser != null && errorParser.LastErrorCode != 0) {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
-				throw this.lastError;
+		throw this.lastError;
             } else {
                 throw new XfoException(4, 0, "Failed to parse last error. Exit code: " + exitCode);
             }
@@ -406,6 +407,7 @@ public class XfoObj {
 				e.printStackTrace();
 			}
 			exitCode = process.waitFor();
+			errorParser.join();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
