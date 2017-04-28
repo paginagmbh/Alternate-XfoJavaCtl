@@ -272,7 +272,10 @@ public class XfoObj {
 				errorParser.start();
 			} catch (Exception e) {}
             exitCode = process.waitFor();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+	    e.printStackTrace();
+	}
+
         if (exitCode != 0) {
             if (errorParser != null && errorParser.LastErrorCode != 0) {
                 this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
@@ -406,6 +409,7 @@ public class XfoObj {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		if (exitCode != 0) {
 			if (errorParser != null && errorParser.LastErrorCode != 0) {
 				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
