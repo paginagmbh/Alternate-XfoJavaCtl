@@ -239,7 +239,11 @@ public class XfoObj {
 
 	    String start = "AHF" + foundVersion;
 
-	    if (foundDirIs64Bit) {
+	    // Mac OS X versions since 6.4 are 64-bit.  The directory is still
+	    // named like the 32-bit version (missing '_64', ex:
+	    // /usr/local/AHFormater64) but the environment variables use the
+	    // '_64' extension (ex:  AHF64_64_HOME).
+	    if (foundDirIs64Bit  ||  (os.contains("Mac OS X") &&  foundVersion >= 64)) {
 		start += "_64";
 	    }
 
