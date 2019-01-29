@@ -5,12 +5,24 @@
 
 package jp.co.antenna.XfoJavaCtl;
 
-import java.io.*;
-import java.util.*;
-import javax.xml.transform.TransformerFactory;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * XfoObj Class is the object class of XSL Formatter
@@ -110,6 +122,7 @@ public class XfoObj {
     private String os;
     private boolean isWindows;
     private String axf_home = null;
+    private File workingDir;
 
     private ArrayList<String> envp = new ArrayList<String>();
 
@@ -486,6 +499,7 @@ public class XfoObj {
 	this.process = null;
 	this.processValid = true;
 	this.outputFilename = "";
+	this.workingDir = null;
     }
 
     //FIXME removing since '-v' option isn't a good test to see if Formatter
@@ -551,6 +565,10 @@ public class XfoObj {
 		    //process = this.r.exec(cmdArray.toArray(s));
 
 		    pb = new ProcessBuilder(cmdArray.toArray(s));
+			// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+			if(this.workingDir != null && this.workingDir.exists()) {
+				pb.directory(workingDir);
+			}
 		    Map<String, String> env = pb.environment();
 
 		    if (preferredHome != null) {
@@ -782,6 +800,10 @@ public class XfoObj {
 			    } else {
 				//process = this.r.exec(cmdArray.toArray(s));
 				pb = new ProcessBuilder(cmdArray.toArray(s));
+				// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+				if(this.workingDir != null && this.workingDir.exists()) {
+					pb.directory(workingDir);
+				}
 				Map<String, String> env = pb.environment();
 
 				if (preferredHome != null) {
@@ -1054,6 +1076,14 @@ public class XfoObj {
         else {
 	    outputFilename = "";
             this.args.remove(opt);
+        }
+    }
+    
+    public void setWorkingDir(File workDir) throws Exception {
+        if(workDir.exists()) {
+            this.workingDir = workDir;
+        } else {
+            throw new Exception("working directory does not exist");
         }
     }
 
