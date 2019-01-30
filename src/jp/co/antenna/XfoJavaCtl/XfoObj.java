@@ -44,7 +44,7 @@ public class XfoObj {
     // FILE_SHARE_DELETE and will prevent Formatter from deleting the output
     // file specified with '-o' if an error occurs.  Formatter will then
     // report the fatal error as 'couldn't delete ouptut' file instead of the
-    // real cause.  Ahrts nees to keep a copy of the output file open in
+    // real cause.  Ahrts needs to keep a copy of the output file open in
     // order to monitor the output progress.
     //
     // Note that with the use of STDOUT the final output file will only be
