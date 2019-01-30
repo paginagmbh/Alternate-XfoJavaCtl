@@ -64,7 +64,6 @@ public class XfoObj {
     // Attributes
     private String preferredHome;
     private String executable;
-    private Runtime r;
     private MessageListener messageListener;
     private LinkedHashMap<String, String> args;
     private ArrayList<String> userCSS;
@@ -200,7 +199,6 @@ public class XfoObj {
      */
     public void clear () {
         // reset attributes        
-        this.r = Runtime.getRuntime();
         this.args = new LinkedHashMap<String, String>();
         this.messageListener = null;
 		this.userCSS = new ArrayList<String>();
@@ -231,7 +229,6 @@ public class XfoObj {
         int exitCode = -1;
         try {
 			String[] s = new String[0];
-			//process = this.r.exec(cmdArray.toArray(s));
 			pb = new ProcessBuilder(cmdArray.toArray(s));
 			Map<String, String> env = pb.environment();
 
@@ -361,7 +358,6 @@ public class XfoObj {
 
 		try {
 			String[] s = new String[0];
-			//process = this.r.exec(cmdArray.toArray(s));
 
 			pb = new ProcessBuilder(cmdArray.toArray(s));
 			Map<String, String> env = pb.environment();
