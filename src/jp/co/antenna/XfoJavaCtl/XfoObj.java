@@ -566,7 +566,7 @@ public class XfoObj {
 
 		    pb = new ProcessBuilder(cmdArray.toArray(s));
 			// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
-			if(this.workingDir != null && this.workingDir.exists()) {
+		    if(this.workingDir != null) {
 				pb.directory(workingDir);
 			}
 		    Map<String, String> env = pb.environment();
@@ -801,7 +801,7 @@ public class XfoObj {
 				//process = this.r.exec(cmdArray.toArray(s));
 				pb = new ProcessBuilder(cmdArray.toArray(s));
 				// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
-				if(this.workingDir != null && this.workingDir.exists()) {
+				if(this.workingDir != null) {
 					pb.directory(workingDir);
 				}
 				Map<String, String> env = pb.environment();
@@ -1079,12 +1079,8 @@ public class XfoObj {
         }
     }
     
-    public void setWorkingDir(File workDir) throws Exception {
-        if(workDir.exists()) {
-            this.workingDir = workDir;
-        } else {
-            throw new Exception("working directory does not exist");
-        }
+    public void setWorkingDir(File workDir) {
+	this.workingDir = workDir;
     }
 
     public void setFormatterType (int formatterType) {
