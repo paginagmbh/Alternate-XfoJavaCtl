@@ -554,6 +554,7 @@ public class XfoObj {
 	    String[] s = new String[0];
 	    try {
 		if (envp.size() > 0) {
+		    // environment variables have already been set by using 'specifiedFormatterInstallation' or finding default unix Formatter installation
 		    String[] e = new String[envp.size()];
 		    envp.toArray(e);
 		    //FIXME processbuilder
@@ -789,6 +790,7 @@ public class XfoObj {
 	    String[] s = new String[0];
 	    try {
 		if (envp.size() > 0) {
+		    // environment variables have already been set by using 'specifiedFormatterInstallation' or finding default unix Formatter installation
 		    String[] e = new String[envp.size()];
 		    envp.toArray(e);
 		    //FIXME processbuilder
