@@ -558,7 +558,13 @@ public class XfoObj {
 		    String[] e = new String[envp.size()];
 		    envp.toArray(e);
 		    //FIXME processbuilder
-		    process = this.r.exec(cmdArray.toArray(s), e);
+
+		    // https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+		    if (this.workingDir != null) {
+			process = this.r.exec(cmdArray.toArray(s), e, this.workingDir);
+		    } else {
+			process = this.r.exec(cmdArray.toArray(s), e);
+		    }
 		} else {
 		    //process = this.r.exec(cmdArray.toArray(s));
 
@@ -794,7 +800,13 @@ public class XfoObj {
 		    String[] e = new String[envp.size()];
 		    envp.toArray(e);
 		    //FIXME processbuilder
-		    process = this.r.exec(cmdArray.toArray(s), e);
+
+		    // https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+		    if (this.workingDir != null) {
+			process = this.r.exec(cmdArray.toArray(s), e, this.workingDir);
+		    } else {
+			process = this.r.exec(cmdArray.toArray(s), e);
+		    }
 		} else {
 		    //process = this.r.exec(cmdArray.toArray(s));
 		    pb = new ProcessBuilder(cmdArray.toArray(s));
