@@ -146,7 +146,6 @@ public class XfoObj {
     }
 
     private File checkForLatestUnixFormatterDirectory (String os, String checkBaseDir) {
-
 	// only used with unix versions
 	if (os.contains("Windows")) {
 	    return null;
@@ -193,8 +192,7 @@ public class XfoObj {
 
 	    //System.out.println("file: " + f.getName());
 	    if (name.startsWith(dirNamePattern)) {
-
-	    // stop here and do next iteration if current AHF dir
+		// stop here and do next iteration if current AHF dir
 		// is not equal with the provided checkBaseDir
 		if(checkBaseDir != null && !f.getAbsolutePath().equals(checkBaseDir)) {
 			continue;
@@ -269,7 +267,6 @@ public class XfoObj {
 	    envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
 	    envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
 	    envp.add(start + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
-
 
 	    /*
 	    for (String s : envp) {
@@ -382,7 +379,6 @@ public class XfoObj {
 
 	if ((axf_home == null) || axf_home.equals("")) {
 	    try {
-
 		if (preferredHome != null  &&  specifiedFormatterInstallation == null) {
 		    if (env.containsKey(preferredHome)) {
 			axf_home = env.get(preferredHome);
@@ -530,22 +526,23 @@ public class XfoObj {
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
     public void execute () throws XfoException, InterruptedException {
-		ArrayList<String> cmdArray = new ArrayList<String>();
-		cmdArray.add(this.executable);
-		for (String arg : this.args.keySet()) {
-			cmdArray.add(arg);
-			//FIXME check if Formatter >= 6.1mr2 which implements stdout corruption fix
-			if (useStdoutFix  &&  arg.equals("-o")) {
-			    cmdArray.add("@STDOUT");
-			} else if (this.args.get(arg) != null) {
-			    cmdArray.add(this.args.get(arg));
-			}
-		}
+	ArrayList<String> cmdArray = new ArrayList<String>();
+	cmdArray.add(this.executable);
+	for (String arg : this.args.keySet()) {
+	    cmdArray.add(arg);
+	    //FIXME check if Formatter >= 6.1mr2 which implements stdout corruption fix
+	    if (useStdoutFix  &&  arg.equals("-o")) {
+		cmdArray.add("@STDOUT");
+	    } else if (this.args.get(arg) != null) {
+		cmdArray.add(this.args.get(arg));
+	    }
+	}
 
-		for (String css : this.userCSS) {
-			cmdArray.add("-css");
-			cmdArray.add(css);
-		}
+	for (String css : this.userCSS) {
+	    cmdArray.add("-css");
+	    cmdArray.add(css);
+	}
+
         // Run Formatter with Runtime.exec()
         //Process process;
 	ProcessBuilder pb;
@@ -565,10 +562,10 @@ public class XfoObj {
 		    //process = this.r.exec(cmdArray.toArray(s));
 
 		    pb = new ProcessBuilder(cmdArray.toArray(s));
-			// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
-		    if(this.workingDir != null) {
-				pb.directory(workingDir);
-			}
+		    // https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+		    if (this.workingDir != null) {
+			pb.directory(workingDir);
+		    }
 		    Map<String, String> env = pb.environment();
 
 		    if (preferredHome != null) {
@@ -712,28 +709,27 @@ public class XfoObj {
         }
     }
 
+    public int getErrorCode () throws XfoException {
+	if (this.lastError == null)
+	    return 0;
+	else
+	    return this.lastError.getErrorCode();
+    }
 
-	public int getErrorCode () throws XfoException {
-		if (this.lastError == null)
-			return 0;
-		else
-			return this.lastError.getErrorCode();
-	}
+    public int getErrorLevel () throws XfoException {
+	if (this.lastError == null)
+	    return 0;
+	else
+	    return this.lastError.getErrorLevel();
+    }
 
-	public int getErrorLevel () throws XfoException {
-		if (this.lastError == null)
-			return 0;
-		else
-			return this.lastError.getErrorLevel();
-	}
+    public String getErrorMessage () throws XfoException {
+	if (this.lastError == null)
+	    return null;
+	else
+	    return this.lastError.getErrorMessage();
+    }
 
-	public String getErrorMessage () throws XfoException {
-		if (this.lastError == null)
-			return null;
-		else
-			return this.lastError.getErrorMessage();
-	}
-    
     public int getExitLevel () throws XfoException {
         String opt = "-extlevel";
         if (this.args.containsKey(opt))
@@ -741,202 +737,202 @@ public class XfoObj {
         return 2;  // default exit level
     }
 
-	public void releaseObject () {
-		this.clear();
-	}
+    public void releaseObject () {
+	this.clear();
+    }
 
     public void releaseObjectEx () throws XfoException {
         releaseObject();
     }
-    
+
     /**
      * Executes the formatting of XSL-FO document specified for src, and outputs it to dst in the output form specified for dst.
-     * 
+     *
      * @param src   XSL-FO Document
      * @param dst   output stream
-     * @param outDevice output device. Please refer to a setPrinterName method about the character string to specify. 
+     * @param outDevice output device. Please refer to a setPrinterName method about the character string to specify.
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
     public void render (InputStream src, OutputStream dst, String outDevice) throws XfoException, InterruptedException {
-		ArrayList<String> cmdArray = new ArrayList<String>();
-		cmdArray.add(this.executable);
-		for (String arg : this.args.keySet()) {
-			cmdArray.add(arg);
-			if (this.args.get(arg) != null)
-				cmdArray.add(this.args.get(arg));
-		}
-		for (String css : this.userCSS) {
-			cmdArray.add("-css");
-			cmdArray.add(css);
-		}
-		cmdArray.add("-d");
-		cmdArray.add("@STDIN");
-		cmdArray.add("-o");
-		cmdArray.add("@STDOUT");
-		cmdArray.add("-p");
-		if (outDevice != null  &&  outDevice.length() != 0) {
-		    cmdArray.add(outDevice);
+	ArrayList<String> cmdArray = new ArrayList<String>();
+	cmdArray.add(this.executable);
+	for (String arg : this.args.keySet()) {
+	    cmdArray.add(arg);
+	    if (this.args.get(arg) != null)
+		cmdArray.add(this.args.get(arg));
+	}
+	for (String css : this.userCSS) {
+	    cmdArray.add("-css");
+	    cmdArray.add(css);
+	}
+	cmdArray.add("-d");
+	cmdArray.add("@STDIN");
+	cmdArray.add("-o");
+	cmdArray.add("@STDOUT");
+	cmdArray.add("-p");
+	if (outDevice != null  &&  outDevice.length() != 0) {
+	    cmdArray.add(outDevice);
+	} else {
+	    cmdArray.add("@PDF");
+	}
+	cmdArray.add(outDevice);
+
+	//Process process;
+	ProcessBuilder pb;
+	ErrorParser errorParser = null;
+	StreamCopyThread scInput = null;
+	StreamCopyThread scOutput = null;
+
+	int exitCode = -1;
+
+	try {
+	    String[] s = new String[0];
+	    try {
+		if (envp.size() > 0) {
+		    String[] e = new String[envp.size()];
+		    envp.toArray(e);
+		    //FIXME processbuilder
+		    process = this.r.exec(cmdArray.toArray(s), e);
 		} else {
-		    cmdArray.add("@PDF");
-		}
-		cmdArray.add(outDevice);
+		    //process = this.r.exec(cmdArray.toArray(s));
+		    pb = new ProcessBuilder(cmdArray.toArray(s));
+		    // https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
+		    if (this.workingDir != null) {
+			pb.directory(workingDir);
+		    }
+		    Map<String, String> env = pb.environment();
 
-		//Process process;
-		ProcessBuilder pb;
-		ErrorParser errorParser = null;
-		StreamCopyThread scInput = null;
-		StreamCopyThread scOutput = null;
+		    if (preferredHome != null) {
+			if (isWindows) {
+			    String path = env.get("Path");
 
-		int exitCode = -1;
-
-		try {
-			String[] s = new String[0];
-			try {
-			    if (envp.size() > 0) {
-				String[] e = new String[envp.size()];
-				envp.toArray(e);
-				//FIXME processbuilder
-				process = this.r.exec(cmdArray.toArray(s), e);
-			    } else {
-				//process = this.r.exec(cmdArray.toArray(s));
-				pb = new ProcessBuilder(cmdArray.toArray(s));
-				// https://github.com/AntennaHouse/Alternate-XfoJavaCtl/issues/8
-				if(this.workingDir != null) {
-					pb.directory(workingDir);
-				}
-				Map<String, String> env = pb.environment();
-
-				if (preferredHome != null) {
-				    if (isWindows) {
-					String path = env.get("Path");
-
-					if (path == null) {
-					    path = "";
-					}
-					env.put("Path", axf_home + ";" + path);
-				    } else if (os.equals("Mac OS X")) {
-					String ldpath = env.get("DYLD_LIBRARY_PATH");
-
-					if (ldpath == null) {
-					    ldpath = "";
-					}
-					env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
-				    } else {
-					String ldpath = env.get("LD_LIBRARY_PATH");
-
-					if (ldpath == null) {
-					    ldpath = "";
-					}
-					env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
-				    }
-				}
-
-				process = pb.start();
+			    if (path == null) {
+				path = "";
 			    }
-			} catch (IOException ioex) {
-			    String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
-			    System.err.println(msg);
-			    throw new XfoException(4, 0, msg);
-			}
-			try {
-				InputStream StdErr = process.getErrorStream();
-				errorParser = new ErrorParser(StdErr, this.messageListener);
-				errorParser.start();
+			    env.put("Path", axf_home + ";" + path);
+			} else if (os.equals("Mac OS X")) {
+			    String ldpath = env.get("DYLD_LIBRARY_PATH");
 
-				scInput = new StreamCopyThread(process.getInputStream(), dst);
-				scInput.start();
-				scOutput = new StreamCopyThread(src, process.getOutputStream());
-				scOutput.start();
-
-			} catch (Exception e) {
-			    String msg = "Exception creating threads in render(): " + e.getMessage();
-			    System.err.println(msg);
-			    //e.printStackTrace();
-			    throw new XfoException(4, 0, msg);
-			}
-			exitCode = process.waitFor();
-		} catch (Exception e) {
-		    String msg = "Exception in render(): " + e.getMessage();
-		    System.err.println(msg);
-		    //e.printStackTrace();
-		    throw new XfoException(4, 0, msg);
-		}
-
-		if (scInput != null) {
-		    try {
-			scInput.join();
-		    } catch (InterruptedException e) {
-			String msg = "Exception joining render input: " + e.getMessage();
-			System.err.println(msg);
-			Thread.interrupted();
-			throw new InterruptedException();
-			//throw new XfoException(4, 0, msg);
-		    }
-		}
-
-		if (scOutput != null) {
-		    try {
-			scOutput.join();
-		    } catch (InterruptedException e) {
-			String msg = "Exception joining render output: " + e.getMessage();
-			System.err.println(msg);
-			Thread.interrupted();
-			throw new InterruptedException();
-			//throw new XfoException(4, 0, msg);
-		    }
-		}
-
-		if (errorParser != null) {
-		    try {
-			errorParser.join();
-			formatterMajorVersion = errorParser.majorVersion;
-			formatterMinorVersion = errorParser.minorVersion;
-			formatterRevision = errorParser.revision;
-		    } catch (InterruptedException e) {
-			String msg = "Exception joining error parser: " + e.getMessage();
-			System.err.println(msg);
-			Thread.interrupted();
-			throw new InterruptedException();
-			//throw new XfoException(4, 0, msg);
-		    }
-		}
-
-		if (exitCode != 0) {
-			if (errorParser != null && errorParser.LastErrorCode != 0) {
-				this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
-				throw this.lastError;
+			    if (ldpath == null) {
+				ldpath = "";
+			    }
+			    env.put("DYLD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 			} else {
-				throw new XfoException(4, 0, "Exit code: " + exitCode + " render 2 last message: " + errorParser.UnknownErrorMessage);
+			    String ldpath = env.get("LD_LIBRARY_PATH");
+
+			    if (ldpath == null) {
+				ldpath = "";
+			    }
+			    env.put("LD_LIBRARY_PATH", axf_home + "/lib:" + ldpath);
 			}
+		    }
+
+		    process = pb.start();
 		}
+	    } catch (IOException ioex) {
+		String msg = "render() couldn't invoke axfo: " + ioex.getMessage();
+		System.err.println(msg);
+		throw new XfoException(4, 0, msg);
+	    }
+	    try {
+		InputStream StdErr = process.getErrorStream();
+		errorParser = new ErrorParser(StdErr, this.messageListener);
+		errorParser.start();
+
+		scInput = new StreamCopyThread(process.getInputStream(), dst);
+		scInput.start();
+		scOutput = new StreamCopyThread(src, process.getOutputStream());
+		scOutput.start();
+	    } catch (Exception e) {
+		String msg = "Exception creating threads in render(): " + e.getMessage();
+		System.err.println(msg);
+		//e.printStackTrace();
+		throw new XfoException(4, 0, msg);
+	    }
+
+	    exitCode = process.waitFor();
+	} catch (Exception e) {
+	    String msg = "Exception in render(): " + e.getMessage();
+	    System.err.println(msg);
+	    //e.printStackTrace();
+	    throw new XfoException(4, 0, msg);
+	}
+
+	if (scInput != null) {
+	    try {
+		scInput.join();
+	    } catch (InterruptedException e) {
+		String msg = "Exception joining render input: " + e.getMessage();
+		System.err.println(msg);
+		Thread.interrupted();
+		throw new InterruptedException();
+		//throw new XfoException(4, 0, msg);
+	    }
+	}
+
+	if (scOutput != null) {
+	    try {
+		scOutput.join();
+	    } catch (InterruptedException e) {
+		String msg = "Exception joining render output: " + e.getMessage();
+		System.err.println(msg);
+		Thread.interrupted();
+		throw new InterruptedException();
+		//throw new XfoException(4, 0, msg);
+	    }
+	}
+
+	if (errorParser != null) {
+	    try {
+		errorParser.join();
+		formatterMajorVersion = errorParser.majorVersion;
+		formatterMinorVersion = errorParser.minorVersion;
+		formatterRevision = errorParser.revision;
+	    } catch (InterruptedException e) {
+		String msg = "Exception joining error parser: " + e.getMessage();
+		System.err.println(msg);
+		Thread.interrupted();
+		throw new InterruptedException();
+		//throw new XfoException(4, 0, msg);
+	    }
+	}
+
+	if (exitCode != 0) {
+	    if (errorParser != null && errorParser.LastErrorCode != 0) {
+		this.lastError = new XfoException(errorParser.LastErrorLevel, errorParser.LastErrorCode, errorParser.LastErrorMessage);
+		throw this.lastError;
+	    } else {
+		throw new XfoException(4, 0, "Exit code: " + exitCode + " render 2 last message: " + errorParser.UnknownErrorMessage);
+	    }
+	}
     }
 
-	/**
-	 * Transforms an XML document specified to xmlSrc using an XSL stylesheet specified to xslSrc. 
-	 * Then executes the formatting of XSL-FO document and outputs it to dst in the output form specified for outDevice. 
-	 * Xalan of JAXP (Java API for XML Processing) is used for the XSLT conversion. The setExternalXSLT method and 
-	 * the setting of XSLT processor in the option setting file is disregarded.
-	 *
-	 * @param xmlSrc XML Document
-	 * @param xslSrc XSL Document
-	 * @param dst output stream
-	 * @param outDevice output device. Please refer to a setPrinterName method about the character string to specify.
-	 * @throws jp.co.antenna.XfoJavaCtl.XfoException
-	 */
-	public void render(InputStream xmlSrc, InputStream xslSrc, OutputStream dst, String outDevice) throws XfoException {
-		try {
-			ByteArrayOutputStream baosFO = new ByteArrayOutputStream();
-			TransformerFactory transFactory = TransformerFactory.newInstance();
-			Transformer transformer = transFactory.newTransformer(new StreamSource(xslSrc));
-			transformer.transform(new StreamSource(xmlSrc), new StreamResult(baosFO));
-			ByteArrayInputStream baisFO = new ByteArrayInputStream(baosFO.toByteArray());
-			this.render(baisFO, dst, outDevice);
-		} catch (XfoException xfoe) {
-			throw xfoe;
-		} catch (Exception e) {
-			throw new XfoException(4, 0, "XSLT Transformation failed: " + e.toString() + " render 2");
-		}
+    /**
+     * Transforms an XML document specified to xmlSrc using an XSL stylesheet specified to xslSrc.
+     * Then executes the formatting of XSL-FO document and outputs it to dst in the output form specified for outDevice.
+     * Xalan of JAXP (Java API for XML Processing) is used for the XSLT conversion. The setExternalXSLT method and
+     * the setting of XSLT processor in the option setting file is disregarded.
+     *
+     * @param xmlSrc XML Document
+     * @param xslSrc XSL Document
+     * @param dst output stream
+     * @param outDevice output device. Please refer to a setPrinterName method about the character string to specify.
+     * @throws jp.co.antenna.XfoJavaCtl.XfoException
+     */
+    public void render(InputStream xmlSrc, InputStream xslSrc, OutputStream dst, String outDevice) throws XfoException {
+	try {
+	    ByteArrayOutputStream baosFO = new ByteArrayOutputStream();
+	    TransformerFactory transFactory = TransformerFactory.newInstance();
+	    Transformer transformer = transFactory.newTransformer(new StreamSource(xslSrc));
+	    transformer.transform(new StreamSource(xmlSrc), new StreamResult(baosFO));
+	    ByteArrayInputStream baisFO = new ByteArrayInputStream(baosFO.toByteArray());
+	    this.render(baisFO, dst, outDevice);
+	} catch (XfoException xfoe) {
+	    throw xfoe;
+	} catch (Exception e) {
+	    throw new XfoException(4, 0, "XSLT Transformation failed: " + e.toString() + " render 2");
 	}
+    }
 
     private void versionCheck (boolean check) {
         String opt = "-v";
@@ -947,31 +943,31 @@ public class XfoObj {
         }
     }
 
-	/**
-	 * Sets the default base URI.
-	 *
-	 * @param uri Base URI
-	 * @throws jp.co.antenna.XfoJavaCtl.XfoException
-	 */
-	public void setBaseURI (String uri) {
-		String opt = "-base";
-		if (uri != null && !uri.equals("")) {
-			if (this.args.containsKey(opt))
-				this.args.remove(opt);
-			this.args.put(opt, uri);
-		} else {
-			this.args.remove(opt);
-		}
+    /**
+     * Sets the default base URI.
+     *
+     * @param uri Base URI
+     * @throws jp.co.antenna.XfoJavaCtl.XfoException
+     */
+    public void setBaseURI (String uri) {
+	String opt = "-base";
+	if (uri != null && !uri.equals("")) {
+	    if (this.args.containsKey(opt))
+		this.args.remove(opt);
+	    this.args.put(opt, uri);
+	} else {
+	    this.args.remove(opt);
 	}
+    }
 
     public void setBatchPrint (boolean bat) {
-        // Fake it. 
+        // Fake it.
     }
-    
+
     /**
      * Set the URI of XML document to be formatted.
-     * <br>If specified "@STDIN", XML document reads from stdin. The document that is read from stdin is assumed to be FO. 
-     * 
+     * <br>If specified "@STDIN", XML document reads from stdin. The document that is read from stdin is assumed to be FO.
+     *
      * @param uri URI of XML document
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
@@ -987,19 +983,19 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     public void setErrorStreamType (int type) {
         // Fake it.
     }
-    
+
     /**
      * Set the error level to abort formatting process.
      * <br>XSL Formatter will stop formatting when the detected error level is equal to setExitLevel setting or higher.
-     * <br>The default value is 2 (Warning). Thus if an error occurred and error level is 2 (Warning) or higher, the 
-     * formatting process will be aborted. Please use the value from 1 to 4. When the value of 5 or more is specified, 
-     * it is considered to be the value of 4. If a error-level:4 (fatal error) occurs, the formatting process will be 
-     * aborted unconditionally. Note: An error is not displayed regardless what value may be specified to be this property. 
-     * 
+     * <br>The default value is 2 (Warning). Thus if an error occurred and error level is 2 (Warning) or higher, the
+     * formatting process will be aborted. Please use the value from 1 to 4. When the value of 5 or more is specified,
+     * it is considered to be the value of 4. If a error-level:4 (fatal error) occurs, the formatting process will be
+     * aborted unconditionally. Note: An error is not displayed regardless what value may be specified to be this property.
+     *
      * @param level Error level to abort
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
@@ -1010,30 +1006,30 @@ public class XfoObj {
             this.args.remove(opt);
         this.args.put(opt, String.valueOf(level));
     }
-    
+
     /**
      * Set the command-line string for external XSLT processor. For example:
      * <DL><DD>xslt -o %3 %1 %2 %param</DL>
      * %1 to %3 means following:
-     * <DL><DD>%1 : XML Document 
-     * <DD>%2 : XSL Stylesheet 
-     * <DD>%3 : XSLT Output File 
+     * <DL><DD>%1 : XML Document
+     * <DD>%2 : XSL Stylesheet
+     * <DD>%3 : XSLT Output File
      * <DD>%param : xsl:param</DL>
      * %1 to %3 are used to express only parameter positions. Do not replace them with actual file names.
      * <br>In case you use XSL:param for external XSLT processor, set the name and value here.
-     * <br>In Windows version, default MSXML3 will be used. 
-     * 
+     * <br>In Windows version, default MSXML3 will be used.
+     *
      * @param cmd Command-line string for external XSLT processor
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
     public void setExternalXSLT (String cmd) throws XfoException {
         // Fill this in....
     }
-    
+
     /**
      * Register the MessageListener interface to the instance of implemented class.
-     * <br>The error that occurred during the formatting process can be received as the event. 
-     * 
+     * <br>The error that occurred during the formatting process can be received as the event.
+     *
      * @param listener The instance of implemented class
      */
     public void setMessageListener (MessageListener listener) {
@@ -1042,7 +1038,7 @@ public class XfoObj {
         else
             this.messageListener = null;
     }
-    
+
     public void setMultiVolume (boolean multiVol) {
         String opt = "-multivol";
         if (multiVol) {
@@ -1051,15 +1047,15 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     /**
      * Specifies the output file path of the formatted result.
      * <br>When the printer is specified as an output format by setPrinterName, a
      * printing result is saved to the specified file by the printer driver.
-     * <br>When output format other than a printer is specified, it is saved at the 
+     * <br>When output format other than a printer is specified, it is saved at the
      * specified file with the specified output format.
-     * <br>When omitted, or when "@STDOUT" is specified, it comes to standard output. 
-     * 
+     * <br>When omitted, or when "@STDOUT" is specified, it comes to standard output.
+     *
      * @param path Path name of output file
      * @throws jp.co.antenna.XfoJavaCtl.XfoException
      */
@@ -1078,7 +1074,7 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     public void setWorkingDir(File workDir) {
 	this.workingDir = workDir;
     }
@@ -1112,7 +1108,7 @@ public class XfoObj {
         if (uri != null && !uri.equals(""))
             this.userCSS.add(uri);
     }
-    
+
     public void setPdfEmbedAllFontsEx (int embedLevel) throws XfoException {
         // fill it in
         String opt = "-peb";
@@ -1122,7 +1118,7 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     public void setPdfImageCompression (int compressionMethod) {
         // fill it in
     }
@@ -1267,7 +1263,7 @@ public class XfoObj {
         if (version != null)
             this.args.put(opt, version);
     }
-    
+
     public void setPrinterName (String prn) {
         String opt = "-p";
         if (prn != null && !prn.equals("")) {
@@ -1279,7 +1275,7 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     public void setStylesheetURI (String uri) {
         String opt = "-s";
         if (uri != null && !uri.equals("")) {
@@ -1291,7 +1287,7 @@ public class XfoObj {
             this.args.remove(opt);
         }
     }
-    
+
     /**
      * Specifies the two pass format.
      *
@@ -1364,37 +1360,36 @@ public class XfoObj {
 }
 
 class StreamCopyThread extends Thread {
-	private InputStream inStream;
-	private OutputStream outStream;
+    private InputStream inStream;
+    private OutputStream outStream;
 
-	public StreamCopyThread (InputStream inStream, OutputStream outStream) {
-		this.inStream = inStream;
-		this.outStream = outStream;
-	}
+    public StreamCopyThread (InputStream inStream, OutputStream outStream) {
+	this.inStream = inStream;
+	this.outStream = outStream;
+    }
 
-	@Override
-	public void run () {
-		try {
-			int COUNT = 1024;
-			byte[] buff = new byte[COUNT];
-			int len;
-			while ((len = this.inStream.read(buff, 0, COUNT)) != -1) {
-				this.outStream.write(buff, 0, len);
-			}
-		} catch (Exception e) {
-		    System.err.println("Exception copying streams: " + e.getMessage());
-		    e.printStackTrace();
-		} finally {
-			try {inStream.close();} catch (Exception e) {
-			    System.err.println("Exception closing input stream: " + e.getMessage());
-			}
-			try {outStream.close();} catch (Exception e) {
-			    System.err.println("Exception closing output stream: " + e.getMessage());
-			}
-		}
+    @Override
+    public void run () {
+	try {
+	    int COUNT = 1024;
+	    byte[] buff = new byte[COUNT];
+	    int len;
+	    while ((len = this.inStream.read(buff, 0, COUNT)) != -1) {
+		this.outStream.write(buff, 0, len);
+	    }
+	} catch (Exception e) {
+	    System.err.println("Exception copying streams: " + e.getMessage());
+	    e.printStackTrace();
+	} finally {
+	    try {inStream.close();} catch (Exception e) {
+		System.err.println("Exception closing input stream: " + e.getMessage());
+	    }
+	    try {outStream.close();} catch (Exception e) {
+		System.err.println("Exception closing output stream: " + e.getMessage());
+	    }
 	}
+    }
 }
-
 
 class StreamFlusher extends Thread {
     private InputStream stream;
@@ -1415,7 +1410,6 @@ class StreamFlusher extends Thread {
 	    System.err.println("IOException flushing stream: " + e.getMessage());
 	}
     }
-
 }
 
 
@@ -1505,29 +1499,29 @@ class ErrorParser extends Thread {
 			}
                     }
                 } else if (line.startsWith("Invalid license.")) {
-					int ErrorLevel = 4;
-					//FIXME what version is this error code from
-					int ErrorCode = 24579;
-					String ErrorMessage = line
-						+ "\n" + reader.readLine()
-						+ "\n" + reader.readLine();
-					this.LastErrorLevel = ErrorLevel;
-					this.LastErrorCode = ErrorCode;
-					this.LastErrorMessage = ErrorMessage;
-					if (this.listener != null)
-						this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
-					errorParsed = true;
+		    int ErrorLevel = 4;
+		    //FIXME what version is this error code from
+		    int ErrorCode = 24579;
+		    String ErrorMessage = line
+			+ "\n" + reader.readLine()
+			+ "\n" + reader.readLine();
+		    this.LastErrorLevel = ErrorLevel;
+		    this.LastErrorCode = ErrorCode;
+		    this.LastErrorMessage = ErrorMessage;
+		    if (this.listener != null)
+			this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
+		    errorParsed = true;
 
                 } else if (line.startsWith("Evaluation license is expired:")) {
-					int ErrorLevel = 4;
-					int ErrorCode = 24591;
-					String ErrorMessage = line;
-					this.LastErrorLevel = ErrorLevel;
-					this.LastErrorCode = ErrorCode;
-					this.LastErrorMessage = ErrorMessage;
-					if (this.listener != null)
-						this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
-					errorParsed = true;
+		    int ErrorLevel = 4;
+		    int ErrorCode = 24591;
+		    String ErrorMessage = line;
+		    this.LastErrorLevel = ErrorLevel;
+		    this.LastErrorCode = ErrorCode;
+		    this.LastErrorMessage = ErrorMessage;
+		    if (this.listener != null)
+			this.listener.onMessage(ErrorLevel, ErrorCode, ErrorMessage);
+		    errorParsed = true;
 		} else {
 		    // unknown error
 		    UnknownErrorMessage += line + "\n";
