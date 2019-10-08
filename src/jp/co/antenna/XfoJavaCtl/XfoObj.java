@@ -447,7 +447,16 @@ public class XfoObj {
 	    } catch (Exception e) {
 		throw new XfoException(4, 1, "Could not locate Formatter's environment variables");
 	    }
+	} else {  // axf.home was specified
+	    // ahrts
+	    String axf_version = System.getProperty("axf.version");
+	    if (axf_version != null  &&  !axf_home.equals("")) {
+		this.specifiedFormatterInstallation = axf_home;
+		this.preferredHome = axf_version;
+		setCustomFormatterLocationEnvironmentVariables();
+	    }
 	}
+
 	String separator = System.getProperty("file.separator");
 	this.executable = axf_home + separator;
 	if (System.getProperty("axf.bin") == null) {
