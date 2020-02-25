@@ -102,14 +102,56 @@ public class XfoObj {
     public static final int S_PDF_VERSION_15 = 2;
     public static final int S_PDF_VERSION_16 = 3;
     public static final int S_PDF_VERSION_17 = 4;
+    public static final int S_PDF_VERSION_20 = 10;
+
     public static final int S_PDF_VERSION_A_1a_2005 = 200;
     public static final int S_PDF_VERSION_A_1b_2005 = 400;
+
+    public static final int S_PDF_VERSION_A_2a_2011_14 = 631;
+    public static final int S_PDF_VERSION_A_2a_2011_15 = 632;
+    public static final int S_PDF_VERSION_A_2a_2011_16 = 633;
+    public static final int S_PDF_VERSION_A_2a_2011_17 = 634;
+
+    public static final int S_PDF_VERSION_A_2b_2011_14 = 641;
+    public static final int S_PDF_VERSION_A_2b_2011_15 = 642;
+    public static final int S_PDF_VERSION_A_2b_2011_16 = 643;
+    public static final int S_PDF_VERSION_A_2b_2011_17 = 644;
+
+    public static final int S_PDF_VERSION_A_2u_2011_14 = 651;
+    public static final int S_PDF_VERSION_A_2u_2011_15 = 652;
+    public static final int S_PDF_VERSION_A_2u_2011_16 = 653;
+    public static final int S_PDF_VERSION_A_2u_2011_17 = 655;
+
+    public static final int S_PDF_VERSION_A_3a_2012_14 = 661;
+    public static final int S_PDF_VERSION_A_3a_2012_15 = 662;
+    public static final int S_PDF_VERSION_A_3a_2012_16 = 663;
+    public static final int S_PDF_VERSION_A_3a_2012_17 = 664;
+
+    public static final int S_PDF_VERSION_A_3b_2012_14 = 671;
+    public static final int S_PDF_VERSION_A_3b_2012_15 = 672;
+    public static final int S_PDF_VERSION_A_3b_2012_16 = 673;
+    public static final int S_PDF_VERSION_A_3b_2012_17 = 674;
+
+    public static final int S_PDF_VERSION_A_3u_2012_14 = 681;
+    public static final int S_PDF_VERSION_A_3u_2012_15 = 682;
+    public static final int S_PDF_VERSION_A_3u_2012_16 = 683;
+    public static final int S_PDF_VERSION_A_3u_2012_17 = 684;
+
+    public static final int S_PDF_VERSION_UA1_15 = 1002;
+    public static final int S_PDF_VERSION_UA1_16 = 1003;
+    public static final int S_PDF_VERSION_UA1_17 = 1004;
+
     public static final int S_PDF_VERSION_X_1a_2001 = 101;
     public static final int S_PDF_VERSION_X_1a_2003 = 104;
     public static final int S_PDF_VERSION_X_2_2003 = 105;
     public static final int S_PDF_VERSION_X_3_2002 = 103;
     public static final int S_PDF_VERSION_X_3_2003 = 106;
+
+    // changed to S_PDF_VERSION_X_4_2010, keep for compatibility
     public static final int S_PDF_VERSION_X_4_2008 = 107;
+    public static final int S_PDF_VERSION_X_4_2010 = 107;
+
+    public static final int S_PDF_VERSION_X_4p_2010 = 108;
 
     // Attributes
     private String preferredHome;
@@ -1245,48 +1287,146 @@ public class XfoObj {
         String version = null;
         if (this.args.containsKey(opt))
             this.args.remove(opt);
-        switch (newVal) {
-            case S_PDF_VERSION_13:
-                version = "PDF1.3";
-                break;
-            case S_PDF_VERSION_14:
-                version = "PDF1.4";
-                break;
-            case S_PDF_VERSION_15:
-                version = "PDF1.5";
-                break;
-            case S_PDF_VERSION_16:
-                version = "PDF1.6";
-                break;
-            case S_PDF_VERSION_17:
-                version = "PDF1.7";
-                break;
-            case S_PDF_VERSION_A_1a_2005:
-                version = "PDF/A-1a:2005";
-                break;
-            case S_PDF_VERSION_A_1b_2005:
-                version = "PDF/A-1b:2005";
-                break;
-            case S_PDF_VERSION_X_1a_2001:
-                version = "PDF/X-1a:2001";
-                break;
-            case S_PDF_VERSION_X_1a_2003:
-                version = "PDF/X-1a:2003";
-                break;
-            case S_PDF_VERSION_X_2_2003:
-                version = "PDF/X-2:2003";
-                break;
-            case S_PDF_VERSION_X_3_2002:
-                version = "PDF/X-3:2002";
-                break;
-            case S_PDF_VERSION_X_3_2003:
-                version = "PDF/X-3:2003";
-                break;
-            case S_PDF_VERSION_X_4_2008:
-                version = "PDF/X-4:2008";
-                break;
 
+	switch (newVal) {
+	case S_PDF_VERSION_13:
+	    version = "PDF1.3";
+	    break;
+	case S_PDF_VERSION_14:
+	    version = "PDF1.4";
+	    break;
+	case S_PDF_VERSION_15:
+	    version = "PDF1.5";
+	    break;
+	case S_PDF_VERSION_16:
+	    version = "PDF1.6";
+	    break;
+	case S_PDF_VERSION_17:
+	    version = "PDF1.7";
+	    break;
+	case S_PDF_VERSION_20:
+	    version = "PDF2.0";
+	    break;
+
+	case S_PDF_VERSION_A_1a_2005:
+	    version = "PDF/A-1a:2005";
+	    break;
+	case S_PDF_VERSION_A_1b_2005:
+	    version = "PDF/A-1b:2005";
+	    break;
+
+	case S_PDF_VERSION_A_2a_2011_14:
+	    version = "PDF1.4/A-2a:2011";
+	    break;
+	case S_PDF_VERSION_A_2a_2011_15:
+	    version = "PDF1.5/A-2a:2011";
+	    break;
+	case S_PDF_VERSION_A_2a_2011_16:
+	    version = "PDF1.6/A-2a:2011";
+	    break;
+	case S_PDF_VERSION_A_2a_2011_17:
+	    version = "PDF1.7/A-2a:2011";
+	    break;
+
+	case S_PDF_VERSION_A_2b_2011_14:
+	    version = "PDF1.4/A-2b:2011";
+	    break;
+	case S_PDF_VERSION_A_2b_2011_15:
+	    version = "PDF1.5/A-2b:2011";
+	    break;
+	case S_PDF_VERSION_A_2b_2011_16:
+	    version = "PDF1.6/A-2b:2011";
+	    break;
+	case S_PDF_VERSION_A_2b_2011_17:
+	    version = "PDF1.7/A-2b:2011";
+	    break;
+
+	case S_PDF_VERSION_A_2u_2011_14:
+	    version = "PDF1.4/A-2u:2011";
+	    break;
+	case S_PDF_VERSION_A_2u_2011_15:
+	    version = "PDF1.5/A-2u:2011";
+	    break;
+	case S_PDF_VERSION_A_2u_2011_16:
+	    version = "PDF1.6/A-2u:2011";
+	    break;
+	case S_PDF_VERSION_A_2u_2011_17:
+	    version = "PDF1.7/A-2u:2011";
+	    break;
+
+	case S_PDF_VERSION_A_3a_2012_14:
+	    version = "PDF1.4/A-3a:2012";
+	    break;
+	case S_PDF_VERSION_A_3a_2012_15:
+	    version = "PDF1.5/A-3a:2012";
+	    break;
+	case S_PDF_VERSION_A_3a_2012_16:
+	    version = "PDF1.6/A-3a:2012";
+	    break;
+	case S_PDF_VERSION_A_3a_2012_17:
+	    version = "PDF1.7/A-3a:2012";
+	    break;
+
+	case S_PDF_VERSION_A_3b_2012_14:
+	    version = "PDF1.4/A-3b:2012";
+	    break;
+	case S_PDF_VERSION_A_3b_2012_15:
+	    version = "PDF1.5/A-3b:2012";
+	    break;
+	case S_PDF_VERSION_A_3b_2012_16:
+	    version = "PDF1.6/A-3b:2012";
+	    break;
+	case S_PDF_VERSION_A_3b_2012_17:
+	    version = "PDF1.7/A-3b:2012";
+	    break;
+
+	case S_PDF_VERSION_A_3u_2012_14:
+	    version = "PDF1.4/A-3u:2012";
+	    break;
+	case S_PDF_VERSION_A_3u_2012_15:
+	    version = "PDF1.5/A-3u:2012";
+	    break;
+	case S_PDF_VERSION_A_3u_2012_16:
+	    version = "PDF1.6/A-3u:2012";
+	    break;
+	case S_PDF_VERSION_A_3u_2012_17:
+	    version = "PDF1.7/A-3u:2012";
+	    break;
+
+	case S_PDF_VERSION_UA1_15:
+	    version = "PDF1.5/UA-1:2014";
+	    break;
+	case S_PDF_VERSION_UA1_16:
+	    version = "PDF1.6/UA-1:2014";
+	    break;
+	case S_PDF_VERSION_UA1_17:
+	    version = "PDF1.7/UA-1:2014";
+	    break;
+
+	case S_PDF_VERSION_X_1a_2001:
+	    version = "PDF/X-1a:2001";
+	    break;
+	case S_PDF_VERSION_X_1a_2003:
+	    version = "PDF/X-1a:2003";
+	    break;
+	case S_PDF_VERSION_X_2_2003:
+	    version = "PDF/X-2:2003";
+	    break;
+	case S_PDF_VERSION_X_3_2002:
+	    version = "PDF/X-3:2002";
+	    break;
+	case S_PDF_VERSION_X_3_2003:
+	    version = "PDF/X-3:2003";
+	    break;
+	case S_PDF_VERSION_X_4_2010:  //  includes S_PDF_VERSION_X_4_2008 compat
+	    version = "PDF/X-4:2010";
+	    break;
+
+	case S_PDF_VERSION_X_4p_2010:
+	    version = "PDF/X-4p:2010";
+	    break;
         }
+
         if (version != null)
             this.args.put(opt, version);
     }
