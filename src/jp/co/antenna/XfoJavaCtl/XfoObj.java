@@ -59,6 +59,7 @@ public class XfoObj {
     public static final int EST_STDOUT = 1;
     public static final int EST_STDERR = 2;
     private static final String[] AH_HOME_ENV = {
+        "AHF70_64_HOME", "AHF70_HOME",
         "AHF66_64_HOME", "AHF66_HOME",
         "AHF65_64_HOME", "AHF65_HOME",
         "AHF64_64_HOME", "AHF64_HOME",
@@ -264,6 +265,7 @@ public class XfoObj {
 	    envp.add(envStart + "_HOME" + "=" + absPath);
 	    envp.add(envStart + "_LIC_PATH" + "=" + absPath + "/etc");
 	    envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
+	    // DMC_TBLPATH removed since version 7, harmless to add
 	    envp.add(envStart + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
 	    envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
 	    envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
@@ -329,6 +331,7 @@ public class XfoObj {
 	envp.add(envStart + "_HOME" + "=" + absPath);
 	envp.add(envStart + "_LIC_PATH" + "=" + absPath + File.separator + "etc");
 	envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + File.separator + "etc" + File.separator + "hyphenation");
+	// DMC_TBLPATH removed since version 7, harmless to add
 	envp.add(envStart + "_DMC_TBLPATH" + "=" + absPath + File.separator + "sdata" + File.separator + "base2");
 	envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + File.separator + "etc" + File.separator + "html.css");
 	envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + File.separator + "etc" + File.separator + "font-config.xml");
