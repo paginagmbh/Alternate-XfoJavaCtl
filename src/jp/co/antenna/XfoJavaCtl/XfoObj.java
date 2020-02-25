@@ -53,7 +53,6 @@ public class XfoObj {
     public boolean useStdoutFix = false;
 
     private String outputFilename = "";
-    private String envStart;
 
     // Consts
     public static final int EST_NONE = 0;
@@ -125,6 +124,7 @@ public class XfoObj {
     private String axf_home = null;
     private File workingDir;
 
+    private String envStart;
     private ArrayList<String> envp = new ArrayList<String>();
 
     // Methods
