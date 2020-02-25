@@ -53,6 +53,7 @@ public class XfoObj {
     public boolean useStdoutFix = false;
 
     private String outputFilename = "";
+    private String envStart;
 
     // Consts
     public static final int EST_NONE = 0;
@@ -250,23 +251,23 @@ public class XfoObj {
 	    }
 	    envp.add(ldLibPath);
 
-	    String start = "AHF" + foundVersion;
+	    envStart = "AHF" + foundVersion;
 
 	    // Mac OS X versions since 6.4 are 64-bit.  The directory is still
 	    // named like the 32-bit version (missing '_64', ex:
 	    // /usr/local/AHFormater64) but the environment variables use the
 	    // '_64' extension (ex:  AHF64_64_HOME).
 	    if (foundDirIs64Bit  ||  (os.contains("Mac OS X") &&  foundVersion >= 64)) {
-		start += "_64";
+		envStart += "_64";
 	    }
 
-	    envp.add(start + "_HOME" + "=" + absPath);
-	    envp.add(start + "_LIC_PATH" + "=" + absPath + "/etc");
-	    envp.add(start + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
-	    envp.add(start + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
-	    envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
-	    envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
-	    envp.add(start + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
+	    envp.add(envStart + "_HOME" + "=" + absPath);
+	    envp.add(envStart + "_LIC_PATH" + "=" + absPath + "/etc");
+	    envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + "/etc/hyphenation");
+	    envp.add(envStart + "_DMC_TBLPATH" + "=" + absPath + "/sdata/base2");
+	    envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + "/etc/html.css");
+	    envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + "/etc/font-config.xml");
+	    envp.add(envStart + "_BROKENIMG" + "=" + absPath + "/samples/Broken.png");
 
 	    /*
 	    for (String s : envp) {
@@ -323,15 +324,15 @@ public class XfoObj {
 	    throw new XfoException(4, 0, "invalid 'preferredHome' specified");
 	}
 
-	String start = preferredHome.substring(0, preferredHome.length() - 5);
+	envStart = preferredHome.substring(0, preferredHome.length() - 5);
 
-	envp.add(start + "_HOME" + "=" + absPath);
-	envp.add(start + "_LIC_PATH" + "=" + absPath + File.separator + "etc");
-	envp.add(start + "_HYPDIC_PATH" + "=" + absPath + File.separator + "etc" + File.separator + "hyphenation");
-	envp.add(start + "_DMC_TBLPATH" + "=" + absPath + File.separator + "sdata" + File.separator + "base2");
-	envp.add(start + "_DEFAULT_HTML_CSS" + "=" + absPath + File.separator + "etc" + File.separator + "html.css");
-	envp.add(start + "_FONT_CONFIGFILE" + "=" + absPath + File.separator + "etc" + File.separator + "font-config.xml");
-	envp.add(start + "_BROKENIMG" + "=" + absPath + File.separator + "samples" + File.separator + "Broken.png");
+	envp.add(envStart + "_HOME" + "=" + absPath);
+	envp.add(envStart + "_LIC_PATH" + "=" + absPath + File.separator + "etc");
+	envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + File.separator + "etc" + File.separator + "hyphenation");
+	envp.add(envStart + "_DMC_TBLPATH" + "=" + absPath + File.separator + "sdata" + File.separator + "base2");
+	envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + File.separator + "etc" + File.separator + "html.css");
+	envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + File.separator + "etc" + File.separator + "font-config.xml");
+	envp.add(envStart + "_BROKENIMG" + "=" + absPath + File.separator + "samples" + File.separator + "Broken.png");
     }
 
     /**
@@ -1336,6 +1337,56 @@ public class XfoObj {
         }
         return false;
     }
+
+	/**
+	 * Get all AHF environment variables created by default in the XfoObj() constructor.
+	 *
+	 * @return an ArrayList object with all the AHF default environment variables
+	 */
+    public ArrayList<String> getEnvironmentVariables () {
+    	return envp;
+	}
+
+	/**
+	 * Adds an environment variable to the ArrayList of AHF default environment variables created in the XfoObj() constructor.
+	 *
+	 * The 'key' is auto-prefixed with the appropriate environment variable prefix for the formatter version
+	 * defined in the XfoObj() constructor.
+	 *
+	 * Example: Adding the key 'XSLT_COMMAND' (which is not set in the AHF default environment variables) results
+	 * in an environment variable exported as 'AHFxx_64_XSLT_COMMAND' where the prefix 'AHFxx_' or the 64bit version
+	 * 'AHFxx_64_' is determined in the XfoObj() constructor.
+	 *
+	 * @param key the environment variable name without the AHF version prefix
+	 * @param value the value
+	 */
+	public void addAhfEnvironmentVariable (String key, String value) {
+		envp.add(envStart + "_" + key + "=" + value);
+	}
+
+	/**
+	 * Overrides an existing environment variable in the ArrayList of AHF default environment variables created
+	 * in the XfoObj() constructor.
+	 *
+	 * The 'key' is auto-prefixed with the appropriate environment variable prefix for the formatter version
+	 * defined in the XfoObj() constructor.
+	 *
+	 * Example: Calling the method with the key 'HYPDIC_PATH' overrides the default environment variable
+	 * 'AHFxx_HYPDIC_PATH' or the 64bit version 'AHFxx_64_HYPDIC_PATH' with your own value. The prefix 'AHFxx_'
+	 * or the 64bit version 'AHFxx_64_' is determined in the XfoObj() constructor.
+	 *
+	 * @param key the environment variable name without the AHF version prefix
+	 * @param value the value
+	 */
+	public void overrideDefaultAhfEnvironmentVariable (String key, String value) {
+		for (int i = 0; i < envp.size(); i++) {
+			String e = envp.get(i);
+
+			if(e.contains(key)) {
+				envp.set(i, e.split("=")[0] + "=" + value);
+			}
+		}
+	}
 
     public void setOptionFileURI (String path) {
         String opt = "-i";
