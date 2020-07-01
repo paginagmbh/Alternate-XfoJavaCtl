@@ -411,8 +411,10 @@ public class XfoObj {
 	this.specifiedFormatterInstallation = specifiedFormatterInstallation;
 	try {
 	    os = System.getProperty("os.name");
-	    if ((os == null) || os.equals(""))
-		throw new Exception();
+	    if ((os == null) || os.equals("")) {
+			throw new Exception();
+	    }
+	    isWindows = os.contains("Windows");
 	} catch (Exception e) {
 	    throw new XfoException(4, 0, "Could not determine OS");
 	}
@@ -450,7 +452,6 @@ public class XfoObj {
 
 		// check possible future versions of Formatter
 		if (axf_home == null  ||  axf_home.equals("")) {
-		    boolean isWindows = os.contains("Windows");
 		    String foundKey = "";
 		    int foundVersion = 0;
 
