@@ -368,15 +368,20 @@ public class XfoObj {
 	    throw new XfoException(4, 0, "invalid 'preferredHome' specified");
 	}
 
+	String etcDir = File.separator + "etc";
+	if (isWindows) {
+	    etcDir = "";
+	}
+
 	envStart = preferredHome.substring(0, preferredHome.length() - 5);
 
 	envp.add(envStart + "_HOME" + "=" + absPath);
-	envp.add(envStart + "_LIC_PATH" + "=" + absPath + File.separator + "etc");
-	envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + File.separator + "etc" + File.separator + "hyphenation");
+	envp.add(envStart + "_LIC_PATH" + "=" + absPath + etcDir);
+	envp.add(envStart + "_HYPDIC_PATH" + "=" + absPath + etcDir + File.separator + "hyphenation");
 	// DMC_TBLPATH removed since version 7, harmless to add
 	envp.add(envStart + "_DMC_TBLPATH" + "=" + absPath + File.separator + "sdata" + File.separator + "base2");
-	envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + File.separator + "etc" + File.separator + "html.css");
-	envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + File.separator + "etc" + File.separator + "font-config.xml");
+	envp.add(envStart + "_DEFAULT_HTML_CSS" + "=" + absPath + etcDir + File.separator + "html.css");
+	envp.add(envStart + "_FONT_CONFIGFILE" + "=" + absPath + etcDir + File.separator + "font-config.xml");
 	envp.add(envStart + "_BROKENIMG" + "=" + absPath + File.separator + "samples" + File.separator + "Broken.png");
     }
 
